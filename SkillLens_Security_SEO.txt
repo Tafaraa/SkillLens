@@ -1,0 +1,83 @@
+
+============================
+SkillLens - SECURITY & SEO RULEBOOK
+============================
+
+This file contains best practices for SECURITY, SEO, and CODE STRUCTURE
+to be used throughout the SkillLens project.
+
+----------------------------
+🔐 SECURITY GUIDELINES
+----------------------------
+
+1. Never execute uploaded code.
+   → Only analyze static code, do not use eval or exec.
+
+2. Sanitize all inputs:
+   → Use regex or validation libraries to check uploaded files.
+   → Limit accepted file types: .py, .js, .zip
+
+3. Enforce HTTPS:
+   → Use SSL certificates 
+
+4. OAuth Token Privacy:
+   → Do not store GitHub tokens in plaintext.
+   → Use encrypted storage or short-lived session tokens.
+
+5. Limit Request Sizes:
+   → Max upload size = 5MB.
+   → Use middleware in FastAPI to reject oversized requests.
+
+6. Rate Limiting:
+   → Prevent spam/abuse with IP-based rate limits.
+
+7. CORS:
+   → Allow only known frontends (localhost, production domain).
+
+8. Error Handling:
+   → Do not expose stack traces or sensitive paths in production.
+
+9. API Authentication:
+   → Use JWT or session-based auth if needed.
+
+----------------------------
+📈 SEO BEST PRACTICES
+----------------------------
+
+1. Add Meta Tags:
+   → Include <title>, <meta name="description"> on every page.
+   → Use Open Graph tags for social previews.
+
+2. Clean URLs:
+   → Use readable routes like /about, /analyze, /results.
+
+3. Sitemap & Robots:
+   → Generate sitemap.xml.
+   → Add robots.txt to allow indexing.
+
+4. Mobile-Friendly:
+   → Always use responsive Tailwind classes.
+   → Test on multiple screen sizes.
+
+5. Preloading and Lazy Loading:
+   → Lazy-load images.
+   → Use preload for fonts or large components.
+
+6. Accessibility:
+   → Use alt text for all images.
+   → Use ARIA labels for interactive components.
+
+7. Fast Load Time:
+   → Minify JS/CSS.
+   → Remove unused dependencies.
+
+----------------------------
+✅ CLEAN CODE RULES
+----------------------------
+
+1. File length: 200-500 lines ideal, max 900 if needed.
+2. Folder structure should reflect logic (components/pages/services).
+3. Name components clearly: SkillRadarChart.jsx, AnalyzeForm.jsx
+4. Comment clearly and consistently.
+5. Use .env files for secrets and configs (NEVER commit them).
+6. Commit regularly with clear messages.

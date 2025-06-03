@@ -1,0 +1,63 @@
+
+You are a senior full-stack engineer. Help me start building a project called "SkillLens".
+The goal of SkillLens is to allow users to upload code files or link GitHub repositories, then analyze their code to determine their skill strengths and weaknesses based on which libraries and tools they use and suggest learning material e.g youtube playlists for that specific topic.
+
+Here’s what I want you to help me do:
+1. Create a clean folder structure using React for the frontend and FastAPI for the backend.
+2. Set up Tailwind CSS for the frontend and include basic pages and components for the homepage, upload interface, and result visualization.
+3. In the backend, create a FastAPI app with routes to handle file uploads and code snippet analysis.
+4. The backend should detect programming languages and libraries in the code using regex or static tools (not execute code).
+5. Add skill classification using a rule-based engine based on imported libraries.
+6. Implement a radar chart in the frontend to display detected skill areas.
+7. Make the code easy to read, cleanly split across folders, and avoid huge files.
+
+Ensure the code is modular, secure, and under 500 lines per file unless necessary.
+Do not use paid APIs.
+
+
+============================
+📘 TECHNOLOGY & STACK RULES
+============================
+
+Use the following versions and tools consistently in the project:
+
+----------------------------
+Frontend Stack (/client)
+----------------------------
+- React 18.x — Main frontend framework
+- Tailwind CSS 3.x — Styling and layout
+- React Router 6.x — Page navigation
+- Axios 1.x — API calls to backend
+- Recharts 2.5.x — For skill visualizations (Radar + Bar charts)
+
+----------------------------
+Backend Stack (/server)
+----------------------------
+- Python 3.10 or 3.11 — Core language
+- FastAPI 0.109+ — API framework
+- Uvicorn 0.22+ — ASGI server
+- python-multipart — For file uploads
+- pylint / flake8 — Static analysis
+- Built-in Python libs: os, regex, pathlib, json
+
+----------------------------
+AI Integration
+----------------------------
+- Use Claude AI (via Windsurf) for summaries, natural language suggestions, and code improvement notes.
+- DO NOT use paid APIs like OpenAI.
+- All skill classification must be rule-based using skill_rules.json.
+
+----------------------------
+Other Tools
+----------------------------
+- dotenv (.env) — Store secrets securely
+- GitHub — Version control and repo hosting
+- Do NOT execute uploaded code
+- Enforce HTTPS in production
+
+----------------------------
+Compatibility Notes
+----------------------------
+- Recharts works with React 18+
+- Tailwind is compatible with all modern React setups
+- Python packages selected are lightweight and avoid version conflicts

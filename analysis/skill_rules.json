@@ -1,0 +1,226 @@
+{
+  "languages": {
+    "Python": {
+      "category": "Backend",
+      "libraries": {
+        "django": {
+          "name": "Django",
+          "category": "Backend",
+          "description": "Python web framework for building web applications",
+          "learning_resources": [
+            {"title": "Django for Beginners", "url": "https://www.youtube.com/playlist?list=PL-osiE80TeTtoQCKZ03TU5fNfx2UY6U4p"},
+            {"title": "Django Documentation", "url": "https://docs.djangoproject.com/"}
+          ]
+        },
+        "flask": {
+          "name": "Flask",
+          "category": "Backend",
+          "description": "Lightweight Python web framework",
+          "learning_resources": [
+            {"title": "Flask Tutorial", "url": "https://www.youtube.com/playlist?list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH"},
+            {"title": "Flask Documentation", "url": "https://flask.palletsprojects.com/"}
+          ]
+        },
+        "fastapi": {
+          "name": "FastAPI",
+          "category": "Backend",
+          "description": "Modern, fast web framework for building APIs with Python",
+          "learning_resources": [
+            {"title": "FastAPI Tutorial", "url": "https://www.youtube.com/watch?v=7t2alSnE2-I"},
+            {"title": "FastAPI Documentation", "url": "https://fastapi.tiangolo.com/"}
+          ]
+        },
+        "pandas": {
+          "name": "Pandas",
+          "category": "Data Science",
+          "description": "Data analysis and manipulation library",
+          "learning_resources": [
+            {"title": "Pandas Tutorial", "url": "https://www.youtube.com/playlist?list=PL-osiE80TeTsWmV9i9c58mdDCSskIFdDS"},
+            {"title": "Pandas Documentation", "url": "https://pandas.pydata.org/docs/"}
+          ]
+        },
+        "numpy": {
+          "name": "NumPy",
+          "category": "Data Science",
+          "description": "Scientific computing library",
+          "learning_resources": [
+            {"title": "NumPy Tutorial", "url": "https://www.youtube.com/watch?v=QUT1VHiLmmI"},
+            {"title": "NumPy Documentation", "url": "https://numpy.org/doc/"}
+          ]
+        },
+        "tensorflow": {
+          "name": "TensorFlow",
+          "category": "Machine Learning",
+          "description": "Machine learning framework",
+          "learning_resources": [
+            {"title": "TensorFlow Tutorial", "url": "https://www.youtube.com/playlist?list=PLhhyoLH6IjfxVOdVC1P1L5z5azs0XjMsb"},
+            {"title": "TensorFlow Documentation", "url": "https://www.tensorflow.org/learn"}
+          ]
+        },
+        "pytorch": {
+          "name": "PyTorch",
+          "category": "Machine Learning",
+          "description": "Machine learning framework",
+          "learning_resources": [
+            {"title": "PyTorch Tutorial", "url": "https://www.youtube.com/playlist?list=PLqnslRFeH2UrcDBWF5mfPGpqQDSta6VK4"},
+            {"title": "PyTorch Documentation", "url": "https://pytorch.org/tutorials/"}
+          ]
+        },
+        "requests": {
+          "name": "Requests",
+          "category": "Web",
+          "description": "HTTP library for Python",
+          "learning_resources": [
+            {"title": "Python Requests Tutorial", "url": "https://www.youtube.com/watch?v=tb8gHvYlCFs"},
+            {"title": "Requests Documentation", "url": "https://docs.python-requests.org/"}
+          ]
+        },
+        "sqlalchemy": {
+          "name": "SQLAlchemy",
+          "category": "Database",
+          "description": "SQL toolkit and ORM for Python",
+          "learning_resources": [
+            {"title": "SQLAlchemy Tutorial", "url": "https://www.youtube.com/watch?v=woKYyhLCcnU"},
+            {"title": "SQLAlchemy Documentation", "url": "https://docs.sqlalchemy.org/"}
+          ]
+        },
+        "pytest": {
+          "name": "pytest",
+          "category": "Testing",
+          "description": "Testing framework for Python",
+          "learning_resources": [
+            {"title": "pytest Tutorial", "url": "https://www.youtube.com/watch?v=UMgxJvozR5A"},
+            {"title": "pytest Documentation", "url": "https://docs.pytest.org/"}
+          ]
+        }
+      }
+    },
+    "JavaScript": {
+      "category": "Frontend",
+      "libraries": {
+        "react": {
+          "name": "React",
+          "category": "Frontend",
+          "description": "JavaScript library for building user interfaces",
+          "learning_resources": [
+            {"title": "React Tutorial", "url": "https://www.youtube.com/playlist?list=PLC3y8-rFHvwgg3vaYJgHGnModB54rxOk3"},
+            {"title": "React Documentation", "url": "https://reactjs.org/docs/getting-started.html"}
+          ]
+        },
+        "vue": {
+          "name": "Vue.js",
+          "category": "Frontend",
+          "description": "Progressive JavaScript framework",
+          "learning_resources": [
+            {"title": "Vue.js Tutorial", "url": "https://www.youtube.com/playlist?list=PL4cUxeGkcC9gQcYgjhBoeQH7wiAyZNrYa"},
+            {"title": "Vue.js Documentation", "url": "https://vuejs.org/guide/introduction.html"}
+          ]
+        },
+        "angular": {
+          "name": "Angular",
+          "category": "Frontend",
+          "description": "TypeScript-based web application framework",
+          "learning_resources": [
+            {"title": "Angular Tutorial", "url": "https://www.youtube.com/playlist?list=PLC3y8-rFHvwhBRAgFinJR8KHIrCdTkZcZ"},
+            {"title": "Angular Documentation", "url": "https://angular.io/docs"}
+          ]
+        },
+        "express": {
+          "name": "Express.js",
+          "category": "Backend",
+          "description": "Node.js web application framework",
+          "learning_resources": [
+            {"title": "Express.js Tutorial", "url": "https://www.youtube.com/playlist?list=PLillGF-RfqbYRpji8t4SxUkMxfowG4Kqp"},
+            {"title": "Express.js Documentation", "url": "https://expressjs.com/"}
+          ]
+        },
+        "redux": {
+          "name": "Redux",
+          "category": "State Management",
+          "description": "State management library for JavaScript apps",
+          "learning_resources": [
+            {"title": "Redux Tutorial", "url": "https://www.youtube.com/playlist?list=PLC3y8-rFHvwheJHvseC3I0HuYI2f46oAK"},
+            {"title": "Redux Documentation", "url": "https://redux.js.org/introduction/getting-started"}
+          ]
+        },
+        "tailwindcss": {
+          "name": "Tailwind CSS",
+          "category": "CSS",
+          "description": "Utility-first CSS framework",
+          "learning_resources": [
+            {"title": "Tailwind CSS Tutorial", "url": "https://www.youtube.com/playlist?list=PL4cUxeGkcC9gpXORlEHjc5bgnIi5HEGhw"},
+            {"title": "Tailwind CSS Documentation", "url": "https://tailwindcss.com/docs"}
+          ]
+        },
+        "axios": {
+          "name": "Axios",
+          "category": "Networking",
+          "description": "Promise-based HTTP client for the browser and Node.js",
+          "learning_resources": [
+            {"title": "Axios Tutorial", "url": "https://www.youtube.com/watch?v=6LyagkoRWYA"},
+            {"title": "Axios Documentation", "url": "https://axios-http.com/docs/intro"}
+          ]
+        },
+        "next": {
+          "name": "Next.js",
+          "category": "Frontend",
+          "description": "React framework for production",
+          "learning_resources": [
+            {"title": "Next.js Tutorial", "url": "https://www.youtube.com/playlist?list=PL4cUxeGkcC9g9gP2onazU5-2M-AzA8eBw"},
+            {"title": "Next.js Documentation", "url": "https://nextjs.org/docs"}
+          ]
+        },
+        "jest": {
+          "name": "Jest",
+          "category": "Testing",
+          "description": "JavaScript testing framework",
+          "learning_resources": [
+            {"title": "Jest Tutorial", "url": "https://www.youtube.com/watch?v=7r4xVDI2vho"},
+            {"title": "Jest Documentation", "url": "https://jestjs.io/docs/getting-started"}
+          ]
+        },
+        "recharts": {
+          "name": "Recharts",
+          "category": "Data Visualization",
+          "description": "Redefined chart library built with React and D3",
+          "learning_resources": [
+            {"title": "Recharts Tutorial", "url": "https://www.youtube.com/watch?v=q3pWEGFqDmQ"},
+            {"title": "Recharts Documentation", "url": "https://recharts.org/en-US/"}
+          ]
+        }
+      }
+    },
+    "TypeScript": {
+      "category": "Frontend",
+      "libraries": {
+        "react": {
+          "name": "React with TypeScript",
+          "category": "Frontend",
+          "description": "React with TypeScript for type-safe components",
+          "learning_resources": [
+            {"title": "React TypeScript Tutorial", "url": "https://www.youtube.com/watch?v=Z5iWr6Srsj8"},
+            {"title": "React TypeScript Documentation", "url": "https://react-typescript-cheatsheet.netlify.app/"}
+          ]
+        },
+        "angular": {
+          "name": "Angular",
+          "category": "Frontend",
+          "description": "TypeScript-based web application framework",
+          "learning_resources": [
+            {"title": "Angular Tutorial", "url": "https://www.youtube.com/playlist?list=PLC3y8-rFHvwhBRAgFinJR8KHIrCdTkZcZ"},
+            {"title": "Angular Documentation", "url": "https://angular.io/docs"}
+          ]
+        },
+        "nest": {
+          "name": "NestJS",
+          "category": "Backend",
+          "description": "Progressive Node.js framework for building server-side applications",
+          "learning_resources": [
+            {"title": "NestJS Tutorial", "url": "https://www.youtube.com/watch?v=GHTA143_b-s"},
+            {"title": "NestJS Documentation", "url": "https://docs.nestjs.com/"}
+          ]
+        }
+      }
+    }
+  }
+}

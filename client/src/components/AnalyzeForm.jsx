@@ -1,0 +1,247 @@
+import { useState, useRef, useEffect } from 'react'
+import apiService from '../services/api'
+import useUserPreferences from '../hooks/useUserPreferences'
+import { formatErrorMessage, logError } from '../utils/errorHandler'
+
+const AnalyzeForm = ({ onAnalysisComplete, setIsLoading, setError }) => {
+  const [preferences] = useUserPreferences({ defaultAnalysisTab: 'file' })
+  const [activeTab, setActiveTab] = useState(preferences.defaultAnalysisTab)
+  const [file, setFile] = useState(null)
+  const [repoUrl, setRepoUrl] = useState('')
+  const [dragActive, setDragActive] = useState(false)
+  const fileInputRef = useRef(null)
+
+  // Update active tab when user preferences change
+  useEffect(() => {
+    setActiveTab(preferences.defaultAnalysisTab)
+  }, [preferences.defaultAnalysisTab])
+
+  // API service is already configured with the correct URL
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0]
+    if (selectedFile) {
+      validateFile(selectedFile)
+    }
+  }
+
+  const validateFile = (selectedFile) => {
+    // Check file size (5MB limit)
+    if (selectedFile.size > 5 * 1024 * 1024) {
+      setError('File size exceeds 5MB limit.')
+      setFile(null)
+      return
+    }
+
+    // Check file extension
+    const validExtensions = ['.py', '.js', '.jsx', '.ts', '.tsx', '.html', '.css', '.zip']
+    const fileExtension = '.' + selectedFile.name.split('.').pop().toLowerCase()
+    
+    if (!validExtensions.includes(fileExtension)) {
+      setError(`Invalid file type. Supported types: ${validExtensions.join(', ')}`)
+      setFile(null)
+      return
+    }
+
+    setFile(selectedFile)
+    setError(null)
+  }
+
+  const handleDrag = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true)
+    } else if (e.type === 'dragleave') {
+      setDragActive(false)
+    }
+  }
+
+  const handleDrop = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      validateFile(e.dataTransfer.files[0])
+    }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError(null)
+    
+    if (activeTab === 'file' && !file) {
+      setError('Please select a file to analyze.')
+      return
+    }
+    
+    if (activeTab === 'github' && !repoUrl) {
+      setError('Please enter a GitHub repository URL.')
+      return
+    }
+
+    try {
+      setIsLoading(true)
+      
+      let response
+      
+      if (activeTab === 'file') {
+        response = await apiService.analyzeFile(file)
+      } else {
+        response = await apiService.analyzeGitHub(repoUrl)
+      }
+      
+      if (response.data) {
+        onAnalysisComplete(response.data)
+      }
+    } catch (error) {
+      logError(error, 'AnalyzeForm.handleSubmit')
+      setError(formatErrorMessage(error))
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <div>
+      <div className="sm:hidden">
+        <label htmlFor="tabs" className="sr-only">Select a tab</label>
+        <select
+          id="tabs"
+          name="tabs"
+          className="block w-full rounded-md border-gray-300 focus:border-primary-500 focus:ring-primary-500"
+          value={activeTab}
+          onChange={(e) => setActiveTab(e.target.value)}
+        >
+          <option value="file">Upload File</option>
+          <option value="github">GitHub Repository</option>
+        </select>
+      </div>
+      
+      <div className="hidden sm:block">
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+            <button
+              onClick={() => setActiveTab('file')}
+              className={`${
+                activeTab === 'file'
+                  ? 'border-primary-500 text-primary-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              Upload File
+            </button>
+            <button
+              onClick={() => setActiveTab('github')}
+              className={`${
+                activeTab === 'github'
+                  ? 'border-primary-500 text-primary-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              GitHub Repository
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      <div className="mt-6">
+        <form onSubmit={handleSubmit}>
+          {activeTab === 'file' ? (
+            <div>
+              <label
+                htmlFor="file-upload"
+                className={`relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none`}
+              >
+                <div
+                  className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md ${
+                    dragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300'
+                  }`}
+                  onDragEnter={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDragOver={handleDrag}
+                  onDrop={handleDrop}
+                >
+                  <div className="space-y-1 text-center">
+                    <svg
+                      className="mx-auto h-12 w-12 text-gray-400"
+                      stroke="currentColor"
+                      fill="none"
+                      viewBox="0 0 48 48"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    <div className="flex text-sm text-gray-600">
+                      <label
+                        htmlFor="file-upload"
+                        className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none"
+                      >
+                        <span>Upload a file</span>
+                        <input
+                          id="file-upload"
+                          name="file-upload"
+                          type="file"
+                          className="sr-only"
+                          onChange={handleFileChange}
+                          accept=".py,.js,.jsx,.ts,.tsx,.html,.css,.zip"
+                        />
+                      </label>
+                      <p className="pl-1">or drag and drop</p>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      Python, JavaScript, TypeScript, HTML, CSS, or ZIP (max 5MB)
+                    </p>
+                    {file && (
+                      <p className="text-sm text-primary-600 font-medium mt-2">
+                        Selected: {file.name}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </label>
+            </div>
+          ) : (
+            <div>
+              <label htmlFor="repo-url" className="block text-sm font-medium text-gray-700">
+                GitHub Repository URL
+              </label>
+              <div className="mt-1">
+                <input
+                  type="url"
+                  name="repo-url"
+                  id="repo-url"
+                  className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                  placeholder="https://github.com/username/repository"
+                  value={repoUrl}
+                  onChange={(e) => setRepoUrl(e.target.value)}
+                />
+              </div>
+              <p className="mt-2 text-sm text-gray-500">
+                Enter the full URL to a public GitHub repository.
+              </p>
+            </div>
+          )}
+
+          <div className="mt-6">
+            <button
+              type="submit"
+              className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            >
+              Analyze
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+export default AnalyzeForm

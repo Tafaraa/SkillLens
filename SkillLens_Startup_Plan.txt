@@ -1,0 +1,87 @@
+
+============================
+SkillLens - PROJECT STARTUP PLAN
+============================
+
+This file contains the steps to start building the SkillLens project
+cleanly, consistently, and securely.
+
+----------------------------
+STEP 1: INIT FRONTEND
+----------------------------
+
+1. Create React App (or use Vite)
+   → `npm create vite@latest client -- --template react`
+   → `cd client && npm install`
+
+2. Install Tailwind CSS
+   → `npm install -D tailwindcss postcss autoprefixer`
+   → `npx tailwindcss init -p`
+   → Configure `tailwind.config.js` and `index.css`
+
+3. Create folders under /src:
+   - assets/
+   - components/
+   - pages/
+   - services/
+   - utils/
+
+4. Setup routing using `react-router-dom`
+
+----------------------------
+STEP 2: INIT BACKEND
+----------------------------
+
+1. Create a Python virtual environment:
+   → `python -m venv venv && source venv/bin/activate`
+
+2. Install FastAPI and Uvicorn:
+   → `pip install fastapi uvicorn python-multipart`
+
+3. Create structure:
+   /server/
+     app/
+       routes/
+       core/
+       models/
+       services/
+       utils/
+     main.py
+     requirements.txt
+
+4. Setup CORS, basic file upload route
+
+----------------------------
+STEP 3: BASIC FEATURE BUILD
+----------------------------
+
+Frontend:
+- Create AnalyzeForm.jsx in /components/
+- Create ResultsPage.jsx in /pages/
+- Use fetch or axios to connect to backend
+
+Backend:
+- Setup `/analyze` POST route to receive code file or string
+- Detect language and libraries using regex or static tools
+- Score based on skill_rules.json
+
+----------------------------
+STEP 4: DISPLAY RESULTS
+----------------------------
+
+- Use Recharts to create radar chart of skill scores
+- Show top 3 recommended areas
+- Optional: Claude AI summary later
+
+----------------------------
+STEP 5: CLEAN UP
+----------------------------
+
+- Add .env files (never commit)
+- Add SEO meta tags
+- Add error boundaries
+- Add loading states and edge case handling
+
+
+
+Keep file sizes and lines manageable (200 - 500 lines etc). Split logic across folders.
