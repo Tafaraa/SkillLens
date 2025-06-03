@@ -11,17 +11,17 @@ Please include:
 - Steps to reproduce it (if possible)
 - Your contact information (optional)
 
-We will investigate and respond promptly. Please do not open public issues for sensitive vulnerabilities.
+I will investigate and respond promptly. Please do not open public issues for sensitive vulnerabilities.
 
 ## Responsible Disclosure
 
-We appreciate responsible disclosure. Discovered vulnerabilities will be addressed as quickly as possible, and contributors will be acknowledged if desired.
+I appreciate responsible disclosure. Discovered vulnerabilities will be addressed as quickly as possible, and contributors will be acknowledged if desired.
 
 ---
 
 ## 🔒 Maintainer Notes (internal)
 
-> The full internal security guide is maintained privately. Our security principles include:
+> The full internal security guide is maintained privately. Security principles include:
 - Static-only code analysis (no execution)
 - Input sanitization and file validation
 - Secure upload handling
