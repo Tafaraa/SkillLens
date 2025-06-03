@@ -4,7 +4,7 @@
 
 If you discover a security vulnerability in SkillLens, please report it responsibly.
 
-📬 Contact: [your-email@example.com]
+📬 Contact: mutsvedu.work@gmail.com
 
 Please include:
 - A brief description of the issue
