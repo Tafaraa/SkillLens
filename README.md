@@ -99,17 +99,12 @@ uvicorn app.main:app --reload
 
 ## Security
 
-This project follows strict security guidelines. Please read our [Security Policy](SECURITY.md) before contributing.
+This project follows strict security guidelines. Please read my [Security Policy](SECURITY.md) before contributing.
 
-Key security considerations:
-- Never execute uploaded code
-- Sanitize all inputs
-- Limit file sizes to 5MB
-- Use proper authentication
 
 ## Contributing
 
-Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting a pull request.
+Contributions are welcome! Please read the [Contributing Guidelines](CONTRIBUTING.md) before submitting a pull request.
 
 ## License
 
