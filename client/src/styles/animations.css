@@ -1,0 +1,132 @@
+/* Custom animations and transitions for SkillLens */
+
+/* Dropdown animations */
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dropdownFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+/* Smooth hover effects for buttons and interactive elements */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Smooth section transitions */
+.section-fade-in {
+  animation: sectionFadeIn 0.5s ease forwards;
+}
+
+@keyframes sectionFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pulse animation for focus elements */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+  }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Smooth dropdown styling */
+.enhanced-dropdown {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236366F1'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+  transition: all 0.3s ease;
+}
+
+.enhanced-dropdown:focus {
+  border-color: #6366F1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  outline: none;
+}
+
+/* Custom checkbox styling */
+.enhanced-checkbox {
+  position: relative;
+  cursor: pointer;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid #6366F1;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.enhanced-checkbox:after {
+  content: '';
+  position: absolute;
+  display: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: #6366F1;
+  border-radius: 0.125rem;
+  transition: all 0.2s ease;
+}
+
+.enhanced-checkbox.checked:after {
+  display: block;
+}
+
+/* Page transition animations - subtle and quick */
+.page-enter {
+  opacity: 0.95;
+}
+
+.page-enter-active {
+  opacity: 1;
+  transition: opacity 150ms ease-out;
+}
+
+.page-exit {
+  opacity: 1;
+}
+
+.page-exit-active {
+  opacity: 0.95;
+  transition: opacity 100ms ease-in;
+}

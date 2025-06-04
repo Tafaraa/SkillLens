@@ -8,6 +8,11 @@
  * @returns {string} Formatted error message
  */
 export const formatErrorMessage = (error) => {
+  // First check if our API service has already created a user-friendly message
+  if (error.userMessage) {
+    return error.userMessage;
+  }
+  
   // If it's an API error with a response
   if (error.response) {
     // The request was made and the server responded with a status code
@@ -41,6 +46,11 @@ export const formatErrorMessage = (error) => {
     // Default error message with status code
     return data.detail || `Error ${status}: ${data.message || 'Unknown error'}`
   } 
+  
+  // Network errors
+  if (error.code === 'ERR_NETWORK' || error.code === 'ERR_CONNECTION_REFUSED') {
+    return 'Unable to connect to the server. Please check that both the frontend and backend servers are running.'
+  }
   
   // The request was made but no response was received
   if (error.request) {

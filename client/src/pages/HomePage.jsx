@@ -1,3 +1,4 @@
+import React from 'react'
 import { Link } from 'react-router-dom'
 
 const HomePage = () => {
@@ -19,7 +20,7 @@ const HomePage = () => {
               <div className="rounded-md shadow">
                 <Link
                   to="/analyze"
-                  className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 md:py-4 md:text-lg md:px-10"
+                  className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 md:py-4 md:text-lg md:px-10 transition-all duration-200 hover:scale-105 hover:shadow-md"
                 >
                   Analyze Your Code
                 </Link>
@@ -109,7 +110,7 @@ const HomePage = () => {
             <div className="inline-flex rounded-md shadow">
               <Link
                 to="/analyze"
-                className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-primary-600 bg-white hover:bg-gray-50"
+                className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-primary-600 bg-white hover:bg-gray-50 transition-all duration-200 hover:scale-105 hover:shadow-md"
               >
                 Get Started
               </Link>

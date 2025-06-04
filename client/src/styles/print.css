@@ -31,11 +31,44 @@
     padding: 0 !important;
   }
   
+  /* Force light mode styling for printing, even in dark theme */
+  :root {
+    color-scheme: light !important;
+  }
+  
+  html.dark {
+    color-scheme: light !important;
+  }
+  
+  html.dark * {
+    color-scheme: light !important;
+  }
+  
   /* Force background colors and text colors for printing */
   * {
     background-color: #fff !important;
     color: #000 !important;
     box-shadow: none !important;
+  }
+  
+  /* Force Recharts elements to use light theme colors */
+  .recharts-cartesian-grid-horizontal line,
+  .recharts-cartesian-grid-vertical line,
+  .recharts-polar-grid-angle line,
+  .recharts-polar-grid-concentric path,
+  .recharts-polar-radius-axis line {
+    stroke: #E5E7EB !important;
+  }
+  
+  .recharts-text,
+  .recharts-legend-item-text {
+    fill: #4B5563 !important;
+    color: #4B5563 !important;
+  }
+  
+  .recharts-default-tooltip {
+    background-color: #fff !important;
+    border-color: #E5E7EB !important;
   }
   
   /* Header styling */

@@ -14,6 +14,9 @@ const STORAGE_KEYS = {
  * @param {any} data - Data to store
  */
 export const saveToLocalStorage = (key, data) => {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') return
+  
   try {
     localStorage.setItem(key, JSON.stringify(data))
   } catch (error) {
@@ -27,9 +30,20 @@ export const saveToLocalStorage = (key, data) => {
  * @returns {any} Stored data or null if not found
  */
 export const getFromLocalStorage = (key) => {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') return null
+  
   try {
     const item = localStorage.getItem(key)
-    return item ? JSON.parse(item) : null
+    if (!item) return null
+    
+    // Handle case where the value might be a simple string rather than JSON
+    try {
+      return JSON.parse(item)
+    } catch (parseError) {
+      // If it's not valid JSON, return the raw string value
+      return item
+    }
   } catch (error) {
     console.error('Error getting from localStorage:', error)
     return null
@@ -41,6 +55,9 @@ export const getFromLocalStorage = (key) => {
  * @param {string} key - Storage key
  */
 export const removeFromLocalStorage = (key) => {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') return
+  
   try {
     localStorage.removeItem(key)
   } catch (error) {
@@ -54,6 +71,9 @@ export const removeFromLocalStorage = (key) => {
  * @param {any} data - Data to store
  */
 export const saveToSessionStorage = (key, data) => {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined' || typeof sessionStorage === 'undefined') return
+  
   try {
     sessionStorage.setItem(key, JSON.stringify(data))
   } catch (error) {
@@ -67,6 +87,9 @@ export const saveToSessionStorage = (key, data) => {
  * @returns {any} Stored data or null if not found
  */
 export const getFromSessionStorage = (key) => {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined' || typeof sessionStorage === 'undefined') return null
+  
   try {
     const item = sessionStorage.getItem(key)
     return item ? JSON.parse(item) : null
@@ -81,6 +104,9 @@ export const getFromSessionStorage = (key) => {
  * @param {string} key - Storage key
  */
 export const removeFromSessionStorage = (key) => {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined' || typeof sessionStorage === 'undefined') return
+  
   try {
     sessionStorage.removeItem(key)
   } catch (error) {

@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
 import './index.css'
 import './styles/print.css'
+import './styles/animations.css'
 import { initializeTheme } from './utils/themeUtils'
 
 // Initialize theme before rendering the app

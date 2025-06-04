@@ -1,7 +1,9 @@
 import axios from 'axios'
 
 // Get API URL from environment variables or use default
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+// Use secure protocol when in production
+const isProduction = import.meta.env.MODE === 'production'
+const API_URL = import.meta.env.VITE_API_URL || (isProduction ? 'https://api.skilllens.com' : 'http://localhost:8000')
 
 // Create axios instance with default config
 const apiClient = axios.create({
@@ -31,6 +33,24 @@ apiClient.interceptors.response.use(
   (error) => {
     // Handle errors globally
     console.error('API Error:', error)
+    
+    // Create user-friendly error message
+    let errorMessage = 'An unexpected error occurred'
+    
+    if (error.code === 'ERR_NETWORK') {
+      errorMessage = 'Unable to connect to the server. Please check your connection and try again.'
+    } else if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      errorMessage = error.response.data?.detail || `Error ${error.response.status}: ${error.response.statusText}`
+    } else if (error.request) {
+      // The request was made but no response was received
+      errorMessage = 'No response received from server. Please try again later.'
+    }
+    
+    // Add user-friendly message to the error object
+    error.userMessage = errorMessage
+    
     return Promise.reject(error)
   }
 )

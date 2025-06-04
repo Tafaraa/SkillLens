@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AnalyzeForm from '../components/AnalyzeForm'
 import LoadingSpinner from '../components/LoadingSpinner'
@@ -49,7 +49,7 @@ const AnalyzePage = () => {
           </div>
           <div className="mt-8 text-center">
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Your code is analyzed securely. We don't store your code after analysis is complete.
+              Your code is analyzed securely. Your code is not stored after analysis is complete.
             </p>
           </div>
         </div>
@@ -67,7 +67,7 @@ const AnalyzePage = () => {
       
       <div className="mt-8 text-center">
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Your code is analyzed securely. We don't store your code after analysis is complete.
+          Your code is analyzed securely. Your code is not stored after analysis is complete.
         </p>
       </div>
       

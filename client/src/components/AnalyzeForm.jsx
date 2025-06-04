@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import apiService from '../services/api'
 import useUserPreferences from '../hooks/useUserPreferences'
 import { formatErrorMessage, logError } from '../utils/errorHandler'
@@ -85,6 +85,13 @@ const AnalyzeForm = ({ onAnalysisComplete, setIsLoading, setError }) => {
     try {
       setIsLoading(true)
       
+      // Verify backend connection before proceeding
+      try {
+        await apiService.healthCheck()
+      } catch (healthError) {
+        throw new Error('Unable to connect to the analysis server. Please ensure the backend server is running.')
+      }
+      
       let response
       
       if (activeTab === 'file') {
@@ -111,9 +118,10 @@ const AnalyzeForm = ({ onAnalysisComplete, setIsLoading, setError }) => {
         <select
           id="tabs"
           name="tabs"
-          className="block w-full rounded-md border-gray-300 focus:border-primary-500 focus:ring-primary-500"
+          className="block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-blue-400 transition-all duration-200 hover:border-indigo cursor-pointer"
           value={activeTab}
           onChange={(e) => setActiveTab(e.target.value)}
+          aria-label="Select analysis method"
         >
           <option value="file">Upload File</option>
           <option value="github">GitHub Repository</option>
@@ -122,14 +130,18 @@ const AnalyzeForm = ({ onAnalysisComplete, setIsLoading, setError }) => {
       
       <div className="hidden sm:block">
         <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+          <nav className="-mb-px flex space-x-8" aria-label="Analysis method tabs" role="tablist">
             <button
               onClick={() => setActiveTab('file')}
               className={`${
                 activeTab === 'file'
-                  ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                  ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded-md transition-all duration-200 hover:scale-105`}
+              id="tab-file"
+              role="tab"
+              aria-controls="panel-file"
+              aria-selected={activeTab === 'file'}
             >
               Upload File
             </button>
@@ -137,9 +149,13 @@ const AnalyzeForm = ({ onAnalysisComplete, setIsLoading, setError }) => {
               onClick={() => setActiveTab('github')}
               className={`${
                 activeTab === 'github'
-                  ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                  ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded-md transition-all duration-200 hover:scale-105`}
+              id="tab-github"
+              role="tab"
+              aria-controls="panel-github"
+              aria-selected={activeTab === 'github'}
             >
               GitHub Repository
             </button>
@@ -148,8 +164,13 @@ const AnalyzeForm = ({ onAnalysisComplete, setIsLoading, setError }) => {
       </div>
 
       <div className="mt-6">
-        <form onSubmit={handleSubmit}>
-          {activeTab === 'file' ? (
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          <div 
+            id="panel-file" 
+            role="tabpanel" 
+            aria-labelledby="tab-file"
+            className={activeTab === 'file' ? 'block' : 'hidden'}
+          >
             <div>
               <label
                 htmlFor="file-upload"
@@ -157,7 +178,7 @@ const AnalyzeForm = ({ onAnalysisComplete, setIsLoading, setError }) => {
               >
                 <div
                   className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md ${
-                    dragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300'
+                    dragActive ? 'border-primary-500 bg-primary-50 dark:bg-primary-900 dark:bg-opacity-20' : 'border-gray-300 dark:border-gray-700'
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -182,7 +203,7 @@ const AnalyzeForm = ({ onAnalysisComplete, setIsLoading, setError }) => {
                     <div className="flex text-sm text-gray-600">
                       <label
                         htmlFor="file-upload"
-                        className="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none"
+                        className="relative cursor-pointer rounded-md font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 focus-within:outline-none transition-all duration-200 hover:scale-110"
                       >
                         <span>Upload a file</span>
                         <input
@@ -200,7 +221,7 @@ const AnalyzeForm = ({ onAnalysisComplete, setIsLoading, setError }) => {
                       Python, JavaScript, TypeScript, HTML, CSS, or ZIP (max 5MB)
                     </p>
                     {file && (
-                      <p className="text-sm text-primary-600 font-medium mt-2">
+                      <p className="text-sm text-primary-600 dark:text-primary-400 font-medium mt-2 animate-fade-in">
                         Selected: {file.name}
                       </p>
                     )}
@@ -208,7 +229,13 @@ const AnalyzeForm = ({ onAnalysisComplete, setIsLoading, setError }) => {
                 </div>
               </label>
             </div>
-          ) : (
+          </div>
+          <div 
+            id="panel-github" 
+            role="tabpanel" 
+            aria-labelledby="tab-github"
+            className={activeTab === 'github' ? 'block' : 'hidden'}
+          >
             <div>
               <label htmlFor="repo-url" className="block text-sm font-medium text-gray-700">
                 GitHub Repository URL
@@ -218,22 +245,24 @@ const AnalyzeForm = ({ onAnalysisComplete, setIsLoading, setError }) => {
                   type="url"
                   name="repo-url"
                   id="repo-url"
-                  className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                  className="shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-primary-500 block w-full sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 rounded-md transition-all duration-200 hover:border-indigo focus:scale-[1.02]"
                   placeholder="https://github.com/username/repository"
                   value={repoUrl}
                   onChange={(e) => setRepoUrl(e.target.value)}
+                  aria-label="GitHub repository URL"
                 />
               </div>
               <p className="mt-2 text-sm text-gray-500">
                 Enter the full URL to a public GitHub repository.
               </p>
             </div>
-          )}
+          </div>
 
           <div className="mt-6">
             <button
               type="submit"
-              className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-md font-button"
+              aria-label="Analyze code"
             >
               Analyze
             </button>
