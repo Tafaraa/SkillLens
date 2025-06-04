@@ -9,3 +9,4 @@ requests==2.31.0
 pathlib==1.0.1
 typing-extensions==4.8.0
 python-jose==3.3.0
+email-validator==3.3.0

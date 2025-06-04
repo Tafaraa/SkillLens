@@ -8,12 +8,23 @@
  * @returns {Array} Transformed data for radar chart
  */
 export const prepareRadarChartData = (skills) => {
-  return skills.map(skill => ({
-    name: skill.name,
-    value: Math.round(skill.score * 100), // Convert 0-1 score to 0-100 percentage
-    category: skill.category,
-    fullData: skill // Keep the full data for tooltips
-  }))
+  // Validate input
+  if (!Array.isArray(skills) || skills.length === 0) {
+    console.warn('prepareRadarChartData received empty or invalid skills array')
+    return []
+  }
+  
+  try {
+    return skills.map(skill => ({
+      name: skill.name || 'Unnamed Skill',
+      value: Math.round((skill.score || 0) * 100), // Convert 0-1 score to 0-100 percentage
+      category: skill.category || 'General',
+      fullData: skill // Keep the full data for tooltips
+    }))
+  } catch (error) {
+    console.error('Error preparing radar chart data:', error)
+    return []
+  }
 }
 
 /**
@@ -22,11 +33,22 @@ export const prepareRadarChartData = (skills) => {
  * @returns {Array} Transformed data for bar chart
  */
 export const prepareBarChartData = (skills) => {
-  return skills.map(skill => ({
-    name: skill.name,
-    score: Math.round(skill.score * 100), // Convert 0-1 score to 0-100 percentage
-    fullData: skill // Keep the full data for tooltips
-  }))
+  // Validate input
+  if (!Array.isArray(skills) || skills.length === 0) {
+    console.warn('prepareBarChartData received empty or invalid skills array')
+    return []
+  }
+  
+  try {
+    return skills.map(skill => ({
+      name: skill.name || 'Unnamed Skill',
+      score: Math.round((skill.score || 0) * 100), // Convert 0-1 score to 0-100 percentage
+      fullData: skill // Keep the full data for tooltips
+    }))
+  } catch (error) {
+    console.error('Error preparing bar chart data:', error)
+    return []
+  }
 }
 
 /**
@@ -35,13 +57,25 @@ export const prepareBarChartData = (skills) => {
  * @returns {Object} Skills grouped by category
  */
 export const groupSkillsByCategory = (skills) => {
-  return skills.reduce((acc, skill) => {
-    if (!acc[skill.category]) {
-      acc[skill.category] = []
-    }
-    acc[skill.category].push(skill)
-    return acc
-  }, {})
+  // Validate input
+  if (!Array.isArray(skills) || skills.length === 0) {
+    console.warn('groupSkillsByCategory received empty or invalid skills array')
+    return {}
+  }
+  
+  try {
+    return skills.reduce((acc, skill) => {
+      const category = skill.category || 'General'
+      if (!acc[category]) {
+        acc[category] = []
+      }
+      acc[category].push(skill)
+      return acc
+    }, {})
+  } catch (error) {
+    console.error('Error grouping skills by category:', error)
+    return {}
+  }
 }
 
 /**

@@ -13,28 +13,31 @@ import TermsPage from './pages/TermsPage'
 import SecurityPage from './pages/SecurityPage'
 import RouteTransition from './components/RouteTransition'
 import { ThemeProvider } from './hooks/useTheme.jsx'
+import AuthGuard from './components/auth/AuthGuard'
 
 function App() {
   return (
     <ThemeProvider>
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-        <RouteTransition />
-        <main className="flex-grow transition-opacity duration-150 ease-in-out">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/analyze" element={<AnalyzePage />} />
-            <Route path="/results" element={<ResultsPage />} />
-            <Route path="/report/:reportId" element={<ReportPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/privacy" element={<PrivacyPolicyPage />} />
-            <Route path="/terms" element={<TermsPage />} />
-            <Route path="/security" element={<SecurityPage />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
+      <AuthGuard>
+        <div className="flex flex-col min-h-screen">
+          <Navbar />
+          <RouteTransition />
+          <main className="flex-grow transition-opacity duration-150 ease-in-out">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/analyze" element={<AnalyzePage />} />
+              <Route path="/results" element={<ResultsPage />} />
+              <Route path="/report/:reportId" element={<ReportPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/privacy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/security" element={<SecurityPage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </AuthGuard>
     </ThemeProvider>
   )
 }

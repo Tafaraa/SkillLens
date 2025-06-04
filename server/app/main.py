@@ -10,7 +10,7 @@ from typing import List, Optional
 # Import local modules
 from app.models.skill_models import AnalysisRequest, AnalysisResponse, SkillScore
 from app.services.file_service import save_upload, validate_file
-from app.routes import analyze
+from app.routes import analyze, feedback
 
 # Create FastAPI app
 app = FastAPI(
@@ -23,6 +23,9 @@ app = FastAPI(
 origins = [
     "http://localhost:3000",
     "http://localhost:5173",  # Vite default port
+    "http://localhost:5174",  # Additional Vite port
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5174",
     # Add your production domain here when deployed
 ]
 
@@ -56,6 +59,7 @@ async def health_check():
 
 # Include routes
 app.include_router(analyze.router)
+app.include_router(feedback.router)
 
 if __name__ == "__main__":
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)

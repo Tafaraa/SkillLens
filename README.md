@@ -1,111 +1,63 @@
 # SkillLens
 
-SkillLens is a tool that analyzes code files or GitHub repositories to identify developer skill strengths and weaknesses based on the libraries and tools used, then suggests relevant learning materials.
+SkillLens analyzes code to identify developer skill strengths and suggests learning resources for improvement.
 
-## Features
+## Key Features
 
-- Upload code files or link GitHub repositories
-- Analyze code to detect programming languages and libraries
-- Identify skill strengths and weaknesses
-- Visualize skills using radar charts
-- Suggest learning materials (YouTube playlists, etc.) for improvement
+- Code analysis via file upload or GitHub repository
+- Skills visualization with interactive charts
+- Personalized learning recommendations
 
 ## Tech Stack
 
-### Frontend
-- React 18.x
-- Tailwind CSS 3.x
-- React Router 6.x
-- Axios 1.x
-- Recharts 2.5.x
+**Frontend:** React, Tailwind CSS, Framer Motion  
+**Backend:** Python, FastAPI
 
-### Backend
-- Python 3.10/3.11
-- FastAPI 0.109+
-- Uvicorn 0.22+
-- python-multipart
-- pylint / flake8
+## Access Control
 
-## Project Structure
+This project uses a simple authentication system to restrict access to the live site while in development. The authentication system:
 
-```
-SkillLens/
-│
-├── client/                      # React frontend
-│   ├── public/                  # Static files
-│   └── src/                     # React source code
-│       ├── assets/              # Images, icons
-│       ├── components/          # Reusable components
-│       ├── pages/               # Page components
-│       ├── services/            # API services
-│       └── utils/               # Helper functions
-│
-├── server/                      # Python backend
-│   ├── app/                     # FastAPI application
-│   │   ├── routes/              # API endpoints
-│   │   ├── core/                # Business logic
-│   │   ├── models/              # Data models
-│   │   ├── services/            # Services
-│   │   └── utils/               # Utilities
-│   └── requirements.txt         # Python dependencies
-│
-├── analysis/                    # Code analysis tools
-│   ├── static_tools/            # Static analysis
-│   ├── classifier/              # Skill classification
-│   └── skill_rules.json         # Skill detection rules
-│
-└── docs/                        # Documentation
-```
+- Shows a login screen in production environments
+- Allows free access during local development
+- Uses secure token storage with expiration
+- Implements rate limiting to prevent brute force attacks
 
-## Getting Started
+## Development Setup
 
 ### Prerequisites
 - Node.js 16+
 - Python 3.10+
-- npm or yarn
 
-### Frontend Setup
+### Environment Setup
+
+To set up the environment for both development and production:
+
+1. Clone the repository
+2. Run the setup script to create environment files:
+   ```powershell
+   # On Windows
+   .\setup-env.ps1
+   ```
+   You'll be prompted to enter an access password for the production site.
+3. Follow the quick start instructions below
+
+### Quick Start
+
 ```bash
-# Navigate to client directory
+# Frontend
 cd client
-
-# Install dependencies
 npm install
-
-# Start development server
 npm run dev
-```
 
-### Backend Setup
-```bash
-# Navigate to server directory
+# Backend
 cd server
-
-# Create virtual environment
 python -m venv venv
-
-# Activate virtual environment
-# On Windows
-venv\Scripts\activate
-# On macOS/Linux
-source venv/bin/activate
-
-# Install dependencies
+venv\Scripts\activate  # Windows
+source venv/bin/activate  # macOS/Linux
 pip install -r requirements.txt
-
-# Start development server
 uvicorn app.main:app --reload
 ```
 
-## Security
-
-This project follows strict security guidelines. Please read my [Security Policy](SECURITY.md) before contributing.
-
-
-## Contributing
-
-Contributions are welcome! Please read the [Contributing Guidelines](CONTRIBUTING.md) before submitting a pull request.
-
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT License - see the LICENSE file for details.

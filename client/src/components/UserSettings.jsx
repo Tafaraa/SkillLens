@@ -25,7 +25,7 @@ const UserSettings = () => {
       {/* Settings button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center text-gray-500 hover:text-indigo dark:text-gray-400 dark:hover:text-indigo focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded-md p-1 transition-all duration-200 hover:scale-110 active:scale-95"
+        className="flex items-center text-gray-500 hover:text-indigo dark:text-gray-400 dark:hover:text-indigo focus:outline-none rounded-md p-1 transition-all duration-200 hover:scale-110 active:scale-95"
         aria-label="User settings"
         aria-expanded={isOpen ? "true" : "false"}
         aria-controls="settings-dropdown"

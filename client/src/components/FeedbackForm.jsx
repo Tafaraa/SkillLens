@@ -22,11 +22,8 @@ const FeedbackForm = ({ analysisId }) => {
     setError(null)
     
     try {
-      // This would call a real API endpoint in production
-      // await apiService.submitFeedback({ analysisId, rating, comment })
-      
-      // For now, just simulate a successful submission
-      await new Promise(resolve => setTimeout(resolve, 500))
+      // Call the API to submit feedback
+      await apiService.submitFeedback({ analysisId, rating, comment })
       
       setSubmitSuccess(true)
       setTimeout(() => {

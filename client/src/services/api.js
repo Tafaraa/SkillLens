@@ -59,12 +59,19 @@ apiClient.interceptors.response.use(
 const apiService = {
   // File analysis
   analyzeFile: (file) => {
+    // Create a new FormData instance
     const formData = new FormData()
+    
+    // Append the file with the correct field name expected by the backend
     formData.append('file', file)
     
+    console.log('API Service: Sending file for analysis:', file.name)
+    
+    // When sending multipart/form-data, let the browser set the Content-Type header
+    // with the correct boundary parameter
     return apiClient.post('/analyze/file', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
+        'Content-Type': undefined, // Explicitly remove Content-Type for FormData
       }
     })
   },
@@ -77,6 +84,15 @@ const apiService = {
   // Health check
   healthCheck: () => {
     return apiClient.get('/health')
+  },
+  
+  // Submit user feedback
+  submitFeedback: ({ analysisId, rating, comment }) => {
+    return apiClient.post('/feedback', {
+      analysis_id: analysisId,
+      rating,
+      comment
+    })
   }
 }
 

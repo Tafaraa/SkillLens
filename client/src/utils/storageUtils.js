@@ -114,29 +114,53 @@ export const removeFromSessionStorage = (key) => {
   }
 }
 
+// This function is implemented below
+
+// This function is implemented as saveAnalysisResultsToSessionStorage below
+
 /**
  * Save analysis results to sessionStorage
  * @param {Object} results - Analysis results
  */
 export const saveAnalysisResults = (results) => {
-  saveToSessionStorage(STORAGE_KEYS.ANALYSIS_RESULTS, results)
-  
-  // Also save to recent analyses in localStorage (keep last 5)
-  const recentAnalyses = getFromLocalStorage(STORAGE_KEYS.RECENT_ANALYSES) || []
-  
-  // Add timestamp to results
-  const resultsWithTimestamp = {
-    ...results,
-    timestamp: new Date().toISOString()
+  try {
+    // Validate results before saving
+    if (!results) {
+      console.error('Cannot save null or undefined analysis results')
+      return
+    }
+    
+    // Ensure skills array exists and is valid
+    if (!results.skills || !Array.isArray(results.skills)) {
+      console.warn('Analysis results have missing or invalid skills array, adding empty array')
+      results.skills = []
+    }
+    
+    // Log the data being saved
+    console.log('Saving analysis results to session storage:', results)
+    
+    // Save to session storage
+    saveToSessionStorage(STORAGE_KEYS.ANALYSIS_RESULTS, results)
+    
+    // Also save to recent analyses in localStorage (keep last 5)
+    const recentAnalyses = getFromLocalStorage(STORAGE_KEYS.RECENT_ANALYSES) || []
+    
+    // Add timestamp to results
+    const resultsWithTimestamp = {
+      ...results,
+      timestamp: new Date().toISOString()
+    }
+    
+    // Add to beginning of array and limit to 5 items
+    const updatedRecent = [
+      resultsWithTimestamp,
+      ...recentAnalyses.filter(item => item.filename !== results.filename)
+    ].slice(0, 5)
+    
+    saveToLocalStorage(STORAGE_KEYS.RECENT_ANALYSES, updatedRecent)
+  } catch (error) {
+    console.error('Error saving analysis results:', error)
   }
-  
-  // Add to beginning of array and limit to 5 items
-  const updatedRecent = [
-    resultsWithTimestamp,
-    ...recentAnalyses.filter(item => item.filename !== results.filename)
-  ].slice(0, 5)
-  
-  saveToLocalStorage(STORAGE_KEYS.RECENT_ANALYSES, updatedRecent)
 }
 
 /**
@@ -144,7 +168,32 @@ export const saveAnalysisResults = (results) => {
  * @returns {Object|null} Analysis results or null if not found
  */
 export const getAnalysisResults = () => {
-  return getFromSessionStorage(STORAGE_KEYS.ANALYSIS_RESULTS)
+  try {
+    const results = getFromSessionStorage(STORAGE_KEYS.ANALYSIS_RESULTS)
+    if (!results) {
+      console.warn('No analysis results found in session storage')
+      return null
+    }
+    
+    console.log('Retrieved analysis results from session storage:', results)
+    
+    // Validate the retrieved data
+    if (!results || typeof results !== 'object') {
+      console.error('Invalid analysis results format in session storage')
+      return null
+    }
+    
+    // Ensure skills array exists
+    if (!results.skills || !Array.isArray(results.skills)) {
+      console.warn('Retrieved analysis results have missing or invalid skills array')
+      results.skills = []
+    }
+    
+    return results
+  } catch (error) {
+    console.error('Error getting analysis results from session storage:', error)
+    return null
+  }
 }
 
 /**

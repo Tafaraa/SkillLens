@@ -30,9 +30,15 @@ export const formatErrorMessage = (error) => {
     if (status === 422 && data.detail) {
       // Handle validation errors
       if (Array.isArray(data.detail)) {
-        return data.detail.map(err => err.msg).join(', ')
+        return data.detail.map(err => typeof err === 'object' ? (err.msg || JSON.stringify(err)) : String(err)).join(', ')
       }
-      return data.detail
+      
+      // Convert object or any other type to string
+      if (typeof data.detail === 'object') {
+        return JSON.stringify(data.detail)
+      }
+      
+      return String(data.detail)
     }
     
     if (status === 429) {
