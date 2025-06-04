@@ -5,3 +5,7 @@ pydantic==2.5.2
 pylint==3.0.3
 flake8==6.1.0
 python-dotenv==1.0.0
+requests==2.31.0
+pathlib==1.0.1
+typing-extensions==4.8.0
+python-jose==3.3.0

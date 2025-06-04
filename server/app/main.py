@@ -10,8 +10,7 @@ from typing import List, Optional
 # Import local modules
 from app.models.skill_models import AnalysisRequest, AnalysisResponse, SkillScore
 from app.services.file_service import save_upload, validate_file
-from app.core.analyzer import analyze_code
-from app.core.skill_classifier import classify_skills
+from app.routes import analyze
 
 # Create FastAPI app
 app = FastAPI(
@@ -55,54 +54,8 @@ async def limit_request_size(request: Request, call_next):
 async def health_check():
     return {"status": "healthy"}
 
-# File upload endpoint
-@app.post("/analyze/file", response_model=AnalysisResponse)
-async def analyze_file(file: UploadFile = File(...)):
-    """
-    Upload a code file for analysis
-    """
-    # Validate file
-    if not validate_file(file):
-        raise HTTPException(status_code=400, detail="Invalid file type. Supported types: .py, .js, .zip")
-    
-    # Save file temporarily
-    file_path = await save_upload(file)
-    
-    try:
-        # Analyze code
-        language, libraries = analyze_code(file_path)
-        
-        # Classify skills
-        skills = classify_skills(language, libraries)
-        
-        # Create response
-        return AnalysisResponse(
-            filename=file.filename,
-            language=language,
-            libraries=libraries,
-            skills=skills,
-            recommendations=[skill.name for skill in skills[:3]]  # Top 3 skills to improve
-        )
-    finally:
-        # Clean up temporary file
-        if os.path.exists(file_path):
-            os.remove(file_path)
-
-# GitHub repository analysis endpoint
-@app.post("/analyze/github", response_model=AnalysisResponse)
-async def analyze_github(request: AnalysisRequest):
-    """
-    Analyze a GitHub repository
-    """
-    # This would be implemented to fetch code from GitHub
-    # For now, return a placeholder response
-    return AnalysisResponse(
-        filename=request.repository_url.split("/")[-1],
-        language="Not implemented",
-        libraries=[],
-        skills=[],
-        recommendations=["GitHub analysis not yet implemented"]
-    )
+# Include routes
+app.include_router(analyze.router)
 
 if __name__ == "__main__":
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)

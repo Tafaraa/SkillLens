@@ -1,5 +1,6 @@
 from pydantic import BaseModel, HttpUrl, Field
 from typing import List, Optional, Dict
+from datetime import datetime
 
 class SkillScore(BaseModel):
     """Model for individual skill scores"""
@@ -23,3 +24,4 @@ class AnalysisResponse(BaseModel):
     skills: List[SkillScore]
     recommendations: List[str]
     error: Optional[str] = None
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
