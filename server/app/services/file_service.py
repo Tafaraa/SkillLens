@@ -1,12 +1,13 @@
 import os
 import shutil
 import tempfile
+import zipfile
 from pathlib import Path
 from fastapi import UploadFile
-from typing import List, Optional
+from typing import List, Optional, Dict, Tuple
 
 # Allowed file extensions
-ALLOWED_EXTENSIONS = {'.py', '.js', '.jsx', '.ts', '.tsx', '.html', '.css', '.zip'}
+ALLOWED_EXTENSIONS = {'.py', '.js', '.jsx', '.ts', '.tsx', '.html', '.css', '.java', '.c', '.cpp', '.go', '.rb', '.php', '.zip'}
 
 def validate_file(file: UploadFile) -> bool:
     """
@@ -39,8 +40,9 @@ async def save_upload(file: UploadFile) -> str:
     
     try:
         # Write file contents
+        content = await file.read()
         with temp_file as f:
-            shutil.copyfileobj(file.file, f)
+            f.write(content)
         
         # Return path to saved file
         return temp_file.name
@@ -59,8 +61,6 @@ def extract_zip(zip_path: str, extract_dir: Optional[str] = None) -> List[str]:
     Returns:
         List[str]: Paths to extracted files
     """
-    import zipfile
-    
     # Create temporary directory if not provided
     if extract_dir is None:
         extract_dir = tempfile.mkdtemp()
@@ -78,3 +78,91 @@ def extract_zip(zip_path: str, extract_dir: Optional[str] = None) -> List[str]:
                 file_paths.append(os.path.join(root, file))
     
     return file_paths
+
+async def process_file_upload(file: UploadFile) -> Tuple[Dict[str, List[str]], Optional[str]]:
+    """
+    Process uploaded file and extract code content
+    
+    Args:
+        file: The uploaded file
+        
+    Returns:
+        Tuple[Dict[str, List[str]], Optional[str]]: Dictionary of languages and file contents, and error if any
+    """
+    try:
+        # Get file extension
+        _, ext = os.path.splitext(file.filename)
+        ext = ext.lower()
+        
+        if ext == '.zip':
+            # Handle ZIP file
+            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.zip')
+            content = await file.read()
+            
+            with temp_file as f:
+                f.write(content)
+            
+            # Extract ZIP file
+            extract_dir = tempfile.mkdtemp()
+            file_paths = extract_zip(temp_file.name, extract_dir)
+            
+            # Read file contents
+            result = {}
+            for file_path in file_paths:
+                _, file_ext = os.path.splitext(file_path)
+                language = get_language_from_extension(file_ext)
+                
+                if language not in result:
+                    result[language] = []
+                
+                try:
+                    with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                        result[language].append(f.read())
+                except Exception:
+                    # Skip files that can't be read
+                    pass
+            
+            # Clean up
+            os.unlink(temp_file.name)
+            
+            return result, None
+        else:
+            # Handle single file
+            content = await file.read()
+            content_str = content.decode('utf-8', errors='ignore')
+            
+            # Determine language
+            language = get_language_from_extension(ext)
+            
+            return {language: [content_str]}, None
+    
+    except Exception as e:
+        return {}, f"Error processing file: {str(e)}"
+
+def get_language_from_extension(ext: str) -> str:
+    """
+    Get language from file extension
+    
+    Args:
+        ext: File extension
+        
+    Returns:
+        str: Language name
+    """
+    language_map = {
+        '.py': 'Python',
+        '.js': 'JavaScript',
+        '.jsx': 'JavaScript',
+        '.ts': 'TypeScript',
+        '.tsx': 'TypeScript',
+        '.html': 'HTML',
+        '.css': 'CSS',
+        '.java': 'Java',
+        '.c': 'C',
+        '.cpp': 'C++',
+        '.go': 'Go',
+        '.rb': 'Ruby',
+        '.php': 'PHP',
+    }
+    
+    return language_map.get(ext.lower(), 'Unknown')

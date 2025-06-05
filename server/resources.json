@@ -1,0 +1,398 @@
+{
+  "python": {
+    "name": "Python",
+    "category": "Backend",
+    "description": "Python is a high-level, interpreted programming language known for its readability and versatility.",
+    "resources": [
+      {
+        "title": "Python Official Documentation",
+        "url": "https://docs.python.org/3/",
+        "description": "The official Python documentation"
+      },
+      {
+        "title": "Python Crash Course",
+        "url": "https://www.youtube.com/watch?v=_uQrJ0TkZlc",
+        "description": "Comprehensive Python tutorial for beginners"
+      },
+      {
+        "title": "Python for Everybody",
+        "url": "https://www.py4e.com/",
+        "description": "Free Python course for beginners"
+      }
+    ]
+  },
+  "javascript": {
+    "name": "JavaScript",
+    "category": "Frontend",
+    "description": "JavaScript is a programming language that enables interactive web pages and is an essential part of web applications.",
+    "resources": [
+      {
+        "title": "MDN JavaScript Guide",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide",
+        "description": "Comprehensive JavaScript guide by Mozilla"
+      },
+      {
+        "title": "JavaScript Crash Course",
+        "url": "https://www.youtube.com/watch?v=hdI2bqOjy3c",
+        "description": "Quick introduction to JavaScript fundamentals"
+      },
+      {
+        "title": "JavaScript.info",
+        "url": "https://javascript.info/",
+        "description": "Modern JavaScript tutorial"
+      }
+    ]
+  },
+  "typescript": {
+    "name": "TypeScript",
+    "category": "Frontend",
+    "description": "TypeScript is a strongly typed programming language that builds on JavaScript, giving you better tooling at any scale.",
+    "resources": [
+      {
+        "title": "TypeScript Documentation",
+        "url": "https://www.typescriptlang.org/docs/",
+        "description": "Official TypeScript documentation"
+      },
+      {
+        "title": "TypeScript Crash Course",
+        "url": "https://www.youtube.com/watch?v=BCg4U1FzODs",
+        "description": "Quick introduction to TypeScript"
+      },
+      {
+        "title": "TypeScript Handbook",
+        "url": "https://www.typescriptlang.org/docs/handbook/intro.html",
+        "description": "Comprehensive TypeScript guide"
+      }
+    ]
+  },
+  "react": {
+    "name": "React",
+    "category": "Frontend",
+    "description": "React is a JavaScript library for building user interfaces, particularly single-page applications.",
+    "resources": [
+      {
+        "title": "React Documentation",
+        "url": "https://reactjs.org/docs/getting-started.html",
+        "description": "Official React documentation"
+      },
+      {
+        "title": "React Crash Course",
+        "url": "https://www.youtube.com/watch?v=w7ejDZ8SWv8",
+        "description": "Quick introduction to React"
+      },
+      {
+        "title": "React Tutorial",
+        "url": "https://react-tutorial.app/",
+        "description": "Interactive React tutorial"
+      }
+    ]
+  },
+  "vue": {
+    "name": "Vue",
+    "category": "Frontend",
+    "description": "Vue.js is a progressive JavaScript framework for building user interfaces.",
+    "resources": [
+      {
+        "title": "Vue.js Documentation",
+        "url": "https://vuejs.org/guide/introduction.html",
+        "description": "Official Vue.js documentation"
+      },
+      {
+        "title": "Vue.js Crash Course",
+        "url": "https://www.youtube.com/watch?v=qZXt1Aom3Cs",
+        "description": "Quick introduction to Vue.js"
+      },
+      {
+        "title": "Vue Mastery",
+        "url": "https://www.vuemastery.com/courses/intro-to-vue-3/intro-to-vue3",
+        "description": "Vue.js tutorials and courses"
+      }
+    ]
+  },
+  "angular": {
+    "name": "Angular",
+    "category": "Frontend",
+    "description": "Angular is a platform for building mobile and desktop web applications.",
+    "resources": [
+      {
+        "title": "Angular Documentation",
+        "url": "https://angular.io/docs",
+        "description": "Official Angular documentation"
+      },
+      {
+        "title": "Angular Crash Course",
+        "url": "https://www.youtube.com/watch?v=3dHNOWTI7H8",
+        "description": "Quick introduction to Angular"
+      },
+      {
+        "title": "Angular University",
+        "url": "https://angular-university.io/",
+        "description": "Angular tutorials and courses"
+      }
+    ]
+  },
+  "flask": {
+    "name": "Flask",
+    "category": "Backend",
+    "description": "Flask is a micro web framework for Python, known for its simplicity and flexibility.",
+    "resources": [
+      {
+        "title": "Flask Documentation",
+        "url": "https://flask.palletsprojects.com/",
+        "description": "Official Flask documentation"
+      },
+      {
+        "title": "Flask Mega-Tutorial",
+        "url": "https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world",
+        "description": "Comprehensive Flask tutorial"
+      },
+      {
+        "title": "Flask Crash Course",
+        "url": "https://www.youtube.com/watch?v=Z1RJmh_OqeA",
+        "description": "Quick introduction to Flask"
+      }
+    ]
+  },
+  "django": {
+    "name": "Django",
+    "category": "Backend",
+    "description": "Django is a high-level Python web framework that encourages rapid development and clean, pragmatic design.",
+    "resources": [
+      {
+        "title": "Django Documentation",
+        "url": "https://docs.djangoproject.com/",
+        "description": "Official Django documentation"
+      },
+      {
+        "title": "Django for Beginners",
+        "url": "https://djangoforbeginners.com/",
+        "description": "Django tutorial for beginners"
+      },
+      {
+        "title": "Django Crash Course",
+        "url": "https://www.youtube.com/watch?v=e1IyzVyrLSU",
+        "description": "Quick introduction to Django"
+      }
+    ]
+  },
+  "fastapi": {
+    "name": "FastAPI",
+    "category": "Backend",
+    "description": "FastAPI is a modern, fast web framework for building APIs with Python based on standard Python type hints.",
+    "resources": [
+      {
+        "title": "FastAPI Documentation",
+        "url": "https://fastapi.tiangolo.com/",
+        "description": "Official FastAPI documentation"
+      },
+      {
+        "title": "FastAPI Tutorial",
+        "url": "https://fastapi.tiangolo.com/tutorial/",
+        "description": "Official FastAPI tutorial"
+      },
+      {
+        "title": "FastAPI Crash Course",
+        "url": "https://www.youtube.com/watch?v=7t2alSnE2-I",
+        "description": "Quick introduction to FastAPI"
+      }
+    ]
+  },
+  "express": {
+    "name": "Express",
+    "category": "Backend",
+    "description": "Express is a minimal and flexible Node.js web application framework that provides a robust set of features for web and mobile applications.",
+    "resources": [
+      {
+        "title": "Express Documentation",
+        "url": "https://expressjs.com/",
+        "description": "Official Express documentation"
+      },
+      {
+        "title": "Express Crash Course",
+        "url": "https://www.youtube.com/watch?v=L72fhGm1tfE",
+        "description": "Quick introduction to Express"
+      },
+      {
+        "title": "Express Tutorial",
+        "url": "https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs",
+        "description": "Express tutorial by MDN"
+      }
+    ]
+  },
+  "node": {
+    "name": "Node.js",
+    "category": "Backend",
+    "description": "Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine for building scalable network applications.",
+    "resources": [
+      {
+        "title": "Node.js Documentation",
+        "url": "https://nodejs.org/en/docs/",
+        "description": "Official Node.js documentation"
+      },
+      {
+        "title": "Node.js Crash Course",
+        "url": "https://www.youtube.com/watch?v=fBNz5xF-Kx4",
+        "description": "Quick introduction to Node.js"
+      },
+      {
+        "title": "Node.js Tutorial",
+        "url": "https://www.w3schools.com/nodejs/",
+        "description": "Node.js tutorial by W3Schools"
+      }
+    ]
+  },
+  "pandas": {
+    "name": "Pandas",
+    "category": "Data Science",
+    "description": "Pandas is a fast, powerful, flexible and easy to use open source data analysis and manipulation tool, built on top of Python.",
+    "resources": [
+      {
+        "title": "Pandas Documentation",
+        "url": "https://pandas.pydata.org/docs/",
+        "description": "Official Pandas documentation"
+      },
+      {
+        "title": "Pandas Tutorial",
+        "url": "https://www.youtube.com/watch?v=vmEHCJofslg",
+        "description": "Pandas tutorial for beginners"
+      },
+      {
+        "title": "10 Minutes to Pandas",
+        "url": "https://pandas.pydata.org/docs/user_guide/10min.html",
+        "description": "Quick introduction to Pandas"
+      }
+    ]
+  },
+  "numpy": {
+    "name": "NumPy",
+    "category": "Data Science",
+    "description": "NumPy is the fundamental package for scientific computing with Python, providing support for arrays, matrices, and mathematical functions.",
+    "resources": [
+      {
+        "title": "NumPy Documentation",
+        "url": "https://numpy.org/doc/stable/",
+        "description": "Official NumPy documentation"
+      },
+      {
+        "title": "NumPy Tutorial",
+        "url": "https://www.youtube.com/watch?v=QUT1VHiLmmI",
+        "description": "NumPy tutorial for beginners"
+      },
+      {
+        "title": "NumPy Quickstart",
+        "url": "https://numpy.org/doc/stable/user/quickstart.html",
+        "description": "Quick introduction to NumPy"
+      }
+    ]
+  },
+  "tensorflow": {
+    "name": "TensorFlow",
+    "category": "Machine Learning",
+    "description": "TensorFlow is an end-to-end open source platform for machine learning, with a comprehensive, flexible ecosystem of tools, libraries, and community resources.",
+    "resources": [
+      {
+        "title": "TensorFlow Documentation",
+        "url": "https://www.tensorflow.org/learn",
+        "description": "Official TensorFlow documentation"
+      },
+      {
+        "title": "TensorFlow Tutorial",
+        "url": "https://www.youtube.com/watch?v=tPYj3fFJGjk",
+        "description": "TensorFlow tutorial for beginners"
+      },
+      {
+        "title": "TensorFlow Quickstart",
+        "url": "https://www.tensorflow.org/tutorials/quickstart/beginner",
+        "description": "Quick introduction to TensorFlow"
+      }
+    ]
+  },
+  "pytorch": {
+    "name": "PyTorch",
+    "category": "Machine Learning",
+    "description": "PyTorch is an open source machine learning framework that accelerates the path from research prototyping to production deployment.",
+    "resources": [
+      {
+        "title": "PyTorch Documentation",
+        "url": "https://pytorch.org/docs/stable/index.html",
+        "description": "Official PyTorch documentation"
+      },
+      {
+        "title": "PyTorch Tutorial",
+        "url": "https://www.youtube.com/watch?v=EMXfZB8FVUA",
+        "description": "PyTorch tutorial for beginners"
+      },
+      {
+        "title": "PyTorch Quickstart",
+        "url": "https://pytorch.org/tutorials/beginner/basics/quickstart_tutorial.html",
+        "description": "Quick introduction to PyTorch"
+      }
+    ]
+  },
+  "mongodb": {
+    "name": "MongoDB",
+    "category": "Database",
+    "description": "MongoDB is a document database with the scalability and flexibility that you want with the querying and indexing that you need.",
+    "resources": [
+      {
+        "title": "MongoDB Documentation",
+        "url": "https://docs.mongodb.com/",
+        "description": "Official MongoDB documentation"
+      },
+      {
+        "title": "MongoDB Tutorial",
+        "url": "https://www.youtube.com/watch?v=-56x56UppqQ",
+        "description": "MongoDB tutorial for beginners"
+      },
+      {
+        "title": "MongoDB University",
+        "url": "https://university.mongodb.com/",
+        "description": "Free MongoDB courses"
+      }
+    ]
+  },
+  "mysql": {
+    "name": "MySQL",
+    "category": "Database",
+    "description": "MySQL is an open-source relational database management system.",
+    "resources": [
+      {
+        "title": "MySQL Documentation",
+        "url": "https://dev.mysql.com/doc/",
+        "description": "Official MySQL documentation"
+      },
+      {
+        "title": "MySQL Tutorial",
+        "url": "https://www.youtube.com/watch?v=7S_tz1z_5bA",
+        "description": "MySQL tutorial for beginners"
+      },
+      {
+        "title": "W3Schools MySQL Tutorial",
+        "url": "https://www.w3schools.com/mysql/",
+        "description": "MySQL tutorial by W3Schools"
+      }
+    ]
+  },
+  "postgresql": {
+    "name": "PostgreSQL",
+    "category": "Database",
+    "description": "PostgreSQL is a powerful, open source object-relational database system with over 30 years of active development.",
+    "resources": [
+      {
+        "title": "PostgreSQL Documentation",
+        "url": "https://www.postgresql.org/docs/",
+        "description": "Official PostgreSQL documentation"
+      },
+      {
+        "title": "PostgreSQL Tutorial",
+        "url": "https://www.youtube.com/watch?v=qw--VYLpxG4",
+        "description": "PostgreSQL tutorial for beginners"
+      },
+      {
+        "title": "PostgreSQL Exercises",
+        "url": "https://pgexercises.com/",
+        "description": "Interactive PostgreSQL exercises"
+      }
+    ]
+  }
+}

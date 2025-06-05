@@ -10,7 +10,7 @@ from typing import List, Optional
 # Import local modules
 from app.models.skill_models import AnalysisRequest, AnalysisResponse, SkillScore
 from app.services.file_service import save_upload, validate_file
-from app.routes import analyze, feedback
+from app.routes import analyze, feedback, resources, skills
 
 # Create FastAPI app
 app = FastAPI(
@@ -57,9 +57,11 @@ async def limit_request_size(request: Request, call_next):
 async def health_check():
     return {"status": "healthy"}
 
-# Include routes
+# Include routers
 app.include_router(analyze.router)
 app.include_router(feedback.router)
+app.include_router(resources.router)
+app.include_router(skills.router)
 
 if __name__ == "__main__":
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)

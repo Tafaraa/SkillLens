@@ -1,7 +1,21 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-// Default learning resources by skill category
-const DEFAULT_RESOURCES = {
+// Get API URL from environment variables or use default
+const isProduction = import.meta.env.MODE === 'production';
+const API_URL = import.meta.env.VITE_API_URL || (isProduction ? 'https://api.skilllens.com' : 'http://localhost:8000');
+
+// Create axios instance with default config for resources
+const resourcesClient = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  timeout: 10000, // 10 seconds
+});
+
+// Fallback resources in case API fails
+const FALLBACK_RESOURCES = {
   Frontend: [
     {
       title: "MDN Web Docs",
@@ -12,11 +26,6 @@ const DEFAULT_RESOURCES = {
       title: "Frontend Masters",
       url: "https://frontendmasters.com/",
       description: "In-depth courses on frontend development"
-    },
-    {
-      title: "CSS-Tricks",
-      url: "https://css-tricks.com/",
-      description: "Tips, tricks, and techniques for frontend developers"
     }
   ],
   Backend: [
@@ -29,126 +38,18 @@ const DEFAULT_RESOURCES = {
       title: "Backend Development Roadmap",
       url: "https://roadmap.sh/backend",
       description: "Step by step guide to becoming a backend developer"
-    },
-    {
-      title: "MongoDB University",
-      url: "https://university.mongodb.com/",
-      description: "Free courses on MongoDB and database concepts"
     }
   ],
-  DevOps: [
+  Other: [
     {
-      title: "Docker Documentation",
-      url: "https://docs.docker.com/",
-      description: "Official Docker documentation"
+      title: "Web Development Roadmap",
+      url: "https://roadmap.sh/",
+      description: "Step by step guide to becoming a developer"
     },
     {
-      title: "Kubernetes Learning Path",
-      url: "https://azure.microsoft.com/en-us/resources/kubernetes-learning-path/",
-      description: "Microsoft's Kubernetes learning resources"
-    },
-    {
-      title: "DevOps Roadmap",
-      url: "https://roadmap.sh/devops",
-      description: "Step by step guide to DevOps practices"
-    }
-  ],
-  "Data Science": [
-    {
-      title: "Kaggle",
-      url: "https://www.kaggle.com/learn",
-      description: "Free courses on data science and machine learning"
-    },
-    {
-      title: "Python Data Science Handbook",
-      url: "https://jakevdp.github.io/PythonDataScienceHandbook/",
-      description: "Comprehensive guide to data analysis in Python"
-    },
-    {
-      title: "Fast.ai",
-      url: "https://www.fast.ai/",
-      description: "Practical deep learning for coders"
-    }
-  ],
-  Mobile: [
-    {
-      title: "React Native Documentation",
-      url: "https://reactnative.dev/docs/getting-started",
-      description: "Official React Native documentation"
-    },
-    {
-      title: "Flutter Documentation",
-      url: "https://flutter.dev/docs",
-      description: "Official Flutter documentation"
-    },
-    {
-      title: "Mobile Dev Roadmap",
-      url: "https://roadmap.sh/android",
-      description: "Step by step guide to mobile development"
-    }
-  ]
-};
-
-// Default resources for specific skills
-const SKILL_SPECIFIC_RESOURCES = {
-  JavaScript: [
-    {
-      title: "JavaScript.info",
-      url: "https://javascript.info/",
-      description: "Modern JavaScript tutorial from basics to advanced"
-    },
-    {
-      title: "Eloquent JavaScript",
-      url: "https://eloquentjavascript.net/",
-      description: "Free book about JavaScript programming"
-    }
-  ],
-  React: [
-    {
-      title: "React Documentation",
-      url: "https://reactjs.org/docs/getting-started.html",
-      description: "Official React documentation"
-    },
-    {
-      title: "React Patterns",
-      url: "https://reactpatterns.com/",
-      description: "Common design patterns in React"
-    }
-  ],
-  Python: [
-    {
-      title: "Python Documentation",
-      url: "https://docs.python.org/3/",
-      description: "Official Python documentation"
-    },
-    {
-      title: "Real Python",
-      url: "https://realpython.com/",
-      description: "Python tutorials for all skill levels"
-    }
-  ],
-  CSS: [
-    {
-      title: "CSS Reference",
-      url: "https://cssreference.io/",
-      description: "Visual guide to CSS properties"
-    },
-    {
-      title: "Learn CSS",
-      url: "https://web.dev/learn/css/",
-      description: "Google's comprehensive CSS course"
-    }
-  ],
-  HTML: [
-    {
-      title: "HTML Reference",
-      url: "https://htmlreference.io/",
-      description: "Visual guide to HTML elements"
-    },
-    {
-      title: "HTML Best Practices",
-      url: "https://github.com/hail2u/html-best-practices",
-      description: "Collection of HTML best practices"
+      title: "freeCodeCamp",
+      url: "https://www.freecodecamp.org/learn",
+      description: "Free coding lessons and certifications"
     }
   ]
 };
@@ -156,53 +57,53 @@ const SKILL_SPECIFIC_RESOURCES = {
 const RecommendationCard = ({ skill }) => {
   const [expanded, setExpanded] = useState(false);
   const [resources, setResources] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   
   useEffect(() => {
-    if (!skill) return;
-    
-    // Ensure skill has valid name and category
-    const skillName = skill.name || 'Unknown';
-    const skillCategory = skill.category || 'Development';
-    
-    // Start with any existing resources from the skill data
-    let combinedResources = Array.isArray(skill.learning_resources) ? skill.learning_resources : [];
-    
-    // If we have less than 3 resources, add skill-specific resources
-    if (combinedResources.length < 3 && SKILL_SPECIFIC_RESOURCES[skillName]) {
-      const skillSpecificResources = SKILL_SPECIFIC_RESOURCES[skillName]
-        .filter(resource => !combinedResources.some(r => r.url === resource.url));
-      combinedResources = [...combinedResources, ...skillSpecificResources];
-    }
-    
-    // If we still have less than 3 resources, add category resources
-    if (combinedResources.length < 3 && DEFAULT_RESOURCES[skillCategory]) {
-      const categoryResources = DEFAULT_RESOURCES[skillCategory]
-        .filter(resource => !combinedResources.some(r => r.url === resource.url));
-      combinedResources = [...combinedResources, ...categoryResources];
-    }
-    
-    // If we still have no resources, add general resources
-    if (combinedResources.length === 0) {
-      combinedResources = [
-        {
-          title: "Web Development Roadmap",
-          url: "https://roadmap.sh/",
-          description: "Step by step guide to becoming a developer"
-        },
-        {
-          title: "freeCodeCamp",
-          url: "https://www.freecodecamp.org/learn",
-          description: "Free coding lessons and certifications"
-        },
-        {
-          title: "The Odin Project",
-          url: "https://www.theodinproject.com/",
-          description: "Free full-stack curriculum with projects"
+    // Get resources for this skill from API
+    if (skill && skill.name) {
+      const fetchResources = async () => {
+        try {
+          setLoading(true);
+          // Fetch resources for this specific skill from our API
+          const response = await resourcesClient.get(`/resources/${encodeURIComponent(skill.name)}`);
+          
+          if (response.data && Array.isArray(response.data.resources)) {
+            setResources(response.data.resources);
+          } else {
+            // If API returns unexpected format, use fallback
+            console.warn(`API returned unexpected format for ${skill.name} resources`);
+            useFallbackResources();
+          }
+        } catch (error) {
+          console.error(`Error fetching resources for ${skill.name}:`, error);
+          setError(`Failed to load resources for ${skill.name}`);
+          useFallbackResources();
+        } finally {
+          setLoading(false);
         }
-      ];
+      };
+      
+      // Function to use fallback resources if API fails
+      const useFallbackResources = () => {
+        const category = skill.category || 'Other';
+        if (FALLBACK_RESOURCES[category]) {
+          setResources(FALLBACK_RESOURCES[category]);
+        } else if (FALLBACK_RESOURCES.Other) {
+          // Default to Other resources if no match
+          setResources(FALLBACK_RESOURCES.Other);
+        } else {
+          // Empty array if no fallbacks available
+          setResources([]);
+        }
+      };
+      
+      fetchResources();
+    } else {
+      setLoading(false);
+      setResources([]);
     }
-    
-    setResources(combinedResources);
   }, [skill]);
   
   if (!skill) return null;
@@ -312,7 +213,7 @@ const RecommendationCard = ({ skill }) => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default RecommendationCard
+export default RecommendationCard;
