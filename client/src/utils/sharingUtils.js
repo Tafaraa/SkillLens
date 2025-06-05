@@ -63,16 +63,13 @@ export const getShareableUrl = (shareId) => {
 };
 
 /**
- * Export analysis results to PDF
- * @param {string} elementId - ID of element to export
- * @param {string} filename - Filename for PDF
- * @returns {Promise<void>}
+ * Generate PDF from element
+ * @param {HTMLElement} element - Element to export
+ * @returns {Promise<{pdf: jsPDF, imgData: string, imgWidth: number, imgHeight: number}>}
  */
-export const exportToPdf = async (elementId, filename = 'skill-analysis.pdf') => {
-  const element = document.getElementById(elementId);
-  
+export const generatePdfFromElement = async (element) => {
   if (!element) {
-    throw new Error(`Element with ID "${elementId}" not found`);
+    throw new Error('Element not provided');
   }
   
   try {
@@ -107,8 +104,138 @@ export const exportToPdf = async (elementId, filename = 'skill-analysis.pdf') =>
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
     
     pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-    pdf.save(filename);
     
+    return { pdf, imgData, imgWidth, imgHeight };
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    throw error;
+  }
+};
+
+/**
+ * Preview PDF in a new window
+ * @param {HTMLElement|string} elementOrId - Element or ID of element to preview
+ * @returns {Promise<Window>} - The preview window
+ */
+export const previewPdf = async (elementOrId) => {
+  const element = typeof elementOrId === 'string' ? document.getElementById(elementOrId) : elementOrId;
+  
+  if (!element) {
+    throw new Error(`Element ${typeof elementOrId === 'string' ? 'with ID "' + elementOrId + '"' : ''} not found`);
+  }
+  
+  try {
+    const { imgData } = await generatePdfFromElement(element);
+    
+    // Open a new window with the image
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>SkillLens Report Preview</title>
+        <style>
+          body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+            font-family: system-ui, -apple-system, sans-serif;
+          }
+          .preview-container {
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            max-width: 100%;
+            overflow: auto;
+          }
+          .controls {
+            position: sticky;
+            top: 0;
+            background: #333;
+            color: white;
+            width: 100%;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          }
+          button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 10px;
+          }
+          button:hover {
+            background: #45a049;
+          }
+          button.print {
+            background: #2196F3;
+          }
+          button.print:hover {
+            background: #0b7dda;
+          }
+          h1 {
+            margin: 0;
+            font-size: 18px;
+          }
+          .buttons {
+            display: flex;
+          }
+          img {
+            max-width: 100%;
+            height: auto;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="controls">
+          <h1>SkillLens Report Preview</h1>
+          <div class="buttons">
+            <button class="print" onclick="window.print()">Print</button>
+            <button onclick="window.close()">Close</button>
+          </div>
+        </div>
+        <div class="preview-container">
+          <img src="${imgData}" alt="Report Preview" />
+        </div>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+    
+    return printWindow;
+  } catch (error) {
+    console.error('Error previewing PDF:', error);
+    throw error;
+  }
+};
+
+/**
+ * Export analysis results to PDF
+ * @param {HTMLElement|string} elementOrId - Element or ID of element to export
+ * @param {string} filename - Filename for PDF
+ * @returns {Promise<boolean>}
+ */
+export const exportToPdf = async (elementOrId, filename = 'skill-analysis.pdf') => {
+  const element = typeof elementOrId === 'string' ? document.getElementById(elementOrId) : elementOrId;
+  
+  if (!element) {
+    throw new Error(`Element ${typeof elementOrId === 'string' ? 'with ID "' + elementOrId + '"' : ''} not found`);
+  }
+  
+  try {
+    const { pdf } = await generatePdfFromElement(element);
+    pdf.save(filename);
     return true;
   } catch (error) {
     console.error('Error exporting to PDF:', error);

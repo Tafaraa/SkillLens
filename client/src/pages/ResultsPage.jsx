@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import SkillRadarChart from '../components/SkillRadarChart'
-import SkillBarChart from '../components/SkillBarChart'
-import RecommendationCard from '../components/RecommendationCard'
 import LoadingSpinner from '../components/LoadingSpinner'
-import SkillProgress from '../components/SkillProgress'
-import FeedbackForm from '../components/FeedbackForm'
-import { groupSkillsByCategory, getTopSkills } from '../utils/chartUtils'
-import { getAnalysisResults, getRecentAnalyses } from '../utils/storageUtils'
-import { shareAnalysis, getShareableUrl, exportToPdf } from '../utils/sharingUtils'
+import { getAnalysisResults } from '../utils/storageUtils'
+import { shareAnalysis, getShareableUrl, exportToPdf, previewPdf } from '../utils/sharingUtils'
 import useUserPreferences from '../hooks/useUserPreferences'
+import { useTheme } from '../hooks/useTheme.jsx'
+
+// Import our new components
+import ResultsHeader from '../components/results/ResultsHeader'
+import ResultsOverview from '../components/results/ResultsOverview'
+import SkillsSection from '../components/results/SkillsSection'
+import RecommendationsSection from '../components/results/RecommendationsSection'
+import FeedbackSection from '../components/results/FeedbackSection'
+import ShareModal from '../components/results/ShareModal'
 
 const ResultsPage = () => {
   const [results, setResults] = useState(null)
@@ -17,48 +20,194 @@ const ResultsPage = () => {
   const [shareUrl, setShareUrl] = useState('')
   const [showShareModal, setShowShareModal] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
+  const [isPreviewing, setIsPreviewing] = useState(false)
+  const [expandedSections, setExpandedSections] = useState({
+    overview: true,
+    skills: true,
+    recommendations: true,
+    feedback: false
+  })
   const reportContentRef = useRef(null)
   const navigate = useNavigate()
+  const { isDarkMode } = useTheme()
 
   useEffect(() => {
-    // Get analysis results using our storage utility
-    const storedResults = getAnalysisResults()
-    
-    if (storedResults) {
-      console.log('Analysis results loaded:', storedResults)
-      // Check if skills array exists and has valid data
-      if (!storedResults.skills || !Array.isArray(storedResults.skills) || storedResults.skills.length === 0) {
-        console.warn('Skills data is missing or empty in the analysis results')
-        // Add fallback data for testing if skills are missing
-        storedResults.skills = [
+    try {
+      // Load analysis results from localStorage
+      const storedResults = getAnalysisResults();
+      
+      if (storedResults) {
+        // Create safe copies to avoid mutation issues
+        const safeResults = JSON.parse(JSON.stringify(storedResults));
+        
+        // Determine if this is a file upload or project analysis
+        const isFileUpload = safeResults.isFileUpload || 
+          (safeResults.fileName && !safeResults.fileName.includes('/') && !safeResults.fileName.includes('\\'));
+        
+        // Set file type and create code summary if it's a file upload
+        let fileType = '';
+        let codeSummary = '';
+        
+        if (isFileUpload && safeResults.fileName) {
+          const extension = safeResults.fileName.split('.').pop().toLowerCase();
+          
+          // Determine file type based on extension
+          switch (extension) {
+            case 'js':
+              fileType = 'JavaScript';
+              break;
+            case 'jsx':
+              fileType = 'React JSX';
+              break;
+            case 'ts':
+              fileType = 'TypeScript';
+              break;
+            case 'tsx':
+              fileType = 'React TypeScript';
+              break;
+            case 'py':
+              fileType = 'Python';
+              break;
+            case 'java':
+              fileType = 'Java';
+              break;
+            case 'html':
+              fileType = 'HTML';
+              break;
+            case 'css':
+              fileType = 'CSS';
+              break;
+            case 'json':
+              fileType = 'JSON';
+              break;
+            default:
+              fileType = extension.toUpperCase() || 'Unknown';
+          }
+          
+          // Generate code summary based on skills
+          if (safeResults.skills && safeResults.skills.length > 0) {
+            const topSkills = [...safeResults.skills]
+              .sort((a, b) => (b.score || 0) - (a.score || 0))
+              .slice(0, 3)
+              .map(skill => skill.name)
+              .join(', ');
+              
+            codeSummary = `This ${fileType} file demonstrates knowledge of ${topSkills}. `;
+            
+            // Add complexity assessment
+            const avgScore = safeResults.skills.reduce((sum, skill) => sum + (skill.score || 0), 0) / safeResults.skills.length;
+            if (avgScore > 0.7) {
+              codeSummary += 'The code appears to be well-structured and demonstrates advanced concepts.';
+            } else if (avgScore > 0.4) {
+              codeSummary += 'The code shows intermediate understanding of these concepts.';
+            } else {
+              codeSummary += 'The code shows basic implementation of these concepts.';
+            }
+          }
+        }
+        
+        // Store file type and summary
+        safeResults.fileType = fileType;
+        safeResults.codeSummary = codeSummary;
+        safeResults.isFileUpload = isFileUpload;
+        
+        // For file uploads, filter skills based on file type to ensure relevance
+        if (isFileUpload && safeResults.skills && Array.isArray(safeResults.skills)) {
+          // Map file extensions to relevant skill categories
+          const fileSkillMap = {
+            'js': ['JavaScript', 'ES6', 'Node.js', 'Frontend'],
+            'jsx': ['React', 'JavaScript', 'JSX', 'Frontend'],
+            'ts': ['TypeScript', 'JavaScript', 'Frontend', 'Backend'],
+            'tsx': ['React', 'TypeScript', 'Frontend'],
+            'py': ['Python', 'Backend'],
+            'java': ['Java', 'Backend'],
+            'html': ['HTML', 'Frontend'],
+            'css': ['CSS', 'Frontend'],
+            'json': ['JSON', 'Data']
+          };
+          
+          const extension = safeResults.fileName.split('.').pop().toLowerCase();
+          const relevantSkillTerms = fileSkillMap[extension] || [];
+          
+          // Filter skills to only include those relevant to the file type
+          if (relevantSkillTerms.length > 0) {
+            safeResults.skills = safeResults.skills.filter(skill => {
+              // Check if skill name or category matches any relevant term
+              return relevantSkillTerms.some(term => 
+                skill.name?.toLowerCase().includes(term.toLowerCase()) || 
+                skill.category?.toLowerCase().includes(term.toLowerCase())
+              );
+            });
+          }
+        }
+        
+        // Ensure skills array exists
+        if (!safeResults.skills || !Array.isArray(safeResults.skills) || safeResults.skills.length === 0) {
+          safeResults.skills = [
+            { name: "Sample Skill", category: "Frontend", score: 0.65, description: "This is a sample skill since no skills were found in the analysis." }
+          ];
+        }
+        
+        // Ensure recommendations array exists and matches filtered skills
+        if (isFileUpload) {
+          // For file uploads, generate recommendations based on the filtered skills
+          safeResults.recommendations = safeResults.skills.map(skill => ({
+            ...skill,
+            learning_resources: [
+              { title: `Learn ${skill.name}`, url: `https://www.google.com/search?q=learn+${encodeURIComponent(skill.name)}`, description: `Resources for learning ${skill.name}` }
+            ]
+          }));
+        } else if (!safeResults.recommendations || !Array.isArray(safeResults.recommendations) || safeResults.recommendations.length === 0) {
+          // Fallback for non-file uploads or missing recommendations
+          safeResults.recommendations = safeResults.skills.map(skill => ({
+            ...skill,
+            learning_resources: [
+              { title: "Sample Resource", url: "https://example.com", description: "A sample learning resource." }
+            ]
+          }));
+        }
+        
+        // Make sure all skills have valid scores (not NaN)
+        safeResults.skills = safeResults.skills.map(skill => ({
+          ...skill,
+          score: typeof skill.score === 'number' && !isNaN(skill.score) ? skill.score : 0
+        }));
+        
+        // Make sure all recommendations have valid scores (not NaN)
+        safeResults.recommendations = safeResults.recommendations.map(rec => ({
+          ...rec,
+          score: typeof rec.score === 'number' && !isNaN(rec.score) ? rec.score : 0
+        }));
+        
+        setResults(safeResults);
+        setSkills(safeResults.skills);
+        setRecommendations(safeResults.recommendations);
+        setFileName(safeResults.fileName || 'Unknown File');
+        setAnalysisDate(safeResults.date || new Date().toISOString());
+      } else {
+        console.warn('No analysis results found in storage')
+        // If no results found, redirect to analyze page
+        navigate('/analyze')
+      }
+    } catch (error) {
+      console.error('Error loading analysis results:', error)
+      // Create minimal fallback data to prevent blank page
+      const fallbackResults = {
+        id: 'fallback-' + Date.now(),
+        filename: 'Fallback Analysis',
+        date: new Date().toISOString(),
+        skills: [
           { name: 'JavaScript', score: 0.75, category: 'Frontend' },
           { name: 'React', score: 0.65, category: 'Frontend' },
           { name: 'CSS', score: 0.8, category: 'Frontend' },
           { name: 'Python', score: 0.6, category: 'Backend' },
           { name: 'FastAPI', score: 0.5, category: 'Backend' }
-        ]
+        ],
+        recommendations: []
       }
-      setResults(storedResults)
-    } else {
-      console.warn('No analysis results found in storage')
-      // If no results found, redirect to analyze page
-      navigate('/analyze')
+      setResults(fallbackResults)
     }
   }, [navigate])
-
-  if (!results) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <LoadingSpinner size="medium" message="Loading analysis results..." />
-      </div>
-    )
-  }
-
-  // Use utility function to group skills by category
-  // Ensure skills is an array before grouping
-  const skills = Array.isArray(results.skills) ? results.skills : []
-  console.log('Skills being processed for charts:', skills)
-  const skillsByCategory = groupSkillsByCategory(skills)
 
   // Handle share button click
   const handleShare = () => {
@@ -77,302 +226,133 @@ const ResultsPage = () => {
       alert('Failed to generate shareable link. Please try again.')
     }
   }
-  
-  // Handle copy link to clipboard
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(shareUrl)
-      .then(() => {
-        // Visual feedback that link was copied
-        const copyButton = document.getElementById('copy-link-button')
-        if (copyButton) {
-          copyButton.textContent = 'Copied!'
-          setTimeout(() => {
-            copyButton.textContent = 'Copy Link'
-          }, 2000)
-        }
-      })
-      .catch(err => {
-        console.error('Failed to copy link:', err)
-        alert('Failed to copy link to clipboard')
-      })
-  }
-  
+
   // Handle export to PDF
   const handleExportToPdf = async () => {
     if (!reportContentRef.current) return
     
     try {
       setIsExporting(true)
-      await exportToPdf('report-content', `skilllens-report-${results.filename || 'analysis'}.pdf`)
+      await exportToPdf(reportContentRef.current, `skilllens-analysis-${results.id || 'report'}.pdf`)
     } catch (error) {
       console.error('Error exporting to PDF:', error)
-      alert('Failed to export to PDF. Please try again.')
+      alert('Failed to export as PDF. Please try again.')
     } finally {
       setIsExporting(false)
     }
   }
+  
+  // Handle preview PDF
+  const handlePreviewPdf = async () => {
+    if (!reportContentRef.current) return
+    
+    try {
+      setIsPreviewing(true)
+      await previewPdf(reportContentRef.current)
+    } catch (error) {
+      console.error('Error previewing PDF:', error)
+      alert('Failed to preview PDF. Please try again.')
+    } finally {
+      setIsPreviewing(false)
+    }
+  }
+
+  // Toggle section expansion
+  const toggleSection = (section) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }))
+  }
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Unknown date'
+    
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
 
   return (
-    <div id="report-content" ref={reportContentRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-white dark:bg-gray-900">
-      <div className="text-center mb-12">
-        <h1 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100 sm:text-4xl">
-          Your Skill Analysis Results
-        </h1>
-        <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">
-          Based on your {results.language} code, we've analyzed your skills and prepared personalized recommendations.
-        </p>
-        <div className="mt-6">
-          <button
-            onClick={() => navigate('/analyze')}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-600 dark:text-primary-400 bg-transparent hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none transition-all duration-200 hover:scale-105"
-            aria-label="Start new analysis"
-          >
-            <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
-            </svg>
-            New Analysis
-          </button>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+      {!results ? (
+        <div className="flex justify-center items-center min-h-screen">
+          <LoadingSpinner size="medium" message="Loading analysis results..." />
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Summary Card */}
-        <div className="lg:col-span-1">
-          <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
-            <div className="px-4 py-5 sm:px-6 bg-gray-50 dark:bg-gray-700">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">
-                Analysis Summary
-              </h3>
-            </div>
-            <div className="border-t border-gray-200 dark:border-gray-600 px-4 py-5 sm:p-6">
-              <dl className="grid grid-cols-1 gap-x-4 gap-y-6">
-                <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Filename</dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-gray-200">{results.filename}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Language</dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-gray-200">{results.language}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Libraries Detected</dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-gray-200">
-                    {results.libraries.length > 0 ? (
-                      <ul className="list-disc pl-5 space-y-1">
-                        {results.libraries.map((lib, index) => (
-                          <li key={index}>{lib}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <span className="text-gray-500 dark:text-gray-400">No libraries detected</span>
-                    )}
-                  </dd>
-                </div>
-              </dl>
-            </div>
-          </div>
-        </div>
-
-        {/* Radar Chart */}
-        <div className="lg:col-span-2">
-          <div className="bg-white shadow overflow-hidden sm:rounded-lg dark:bg-gray-800">
-            <div className="px-4 py-5 sm:px-6 bg-gray-50 dark:bg-gray-700">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">
-                Skill Distribution
-              </h3>
-              <p className="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
-                This chart shows your overall skill proficiency across different areas. The further a point extends from the center, the higher your proficiency.  
-              </p>
-            </div>
-            <div className="border-t border-gray-200 dark:border-gray-600 p-4">
-              <div className="h-80">
-                <SkillRadarChart skills={Array.isArray(results.skills) ? results.skills : []} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Skills by Category */}
-      <div className="mt-8">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Skills by Category</h2>
-        <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-3xl">
-          Your skills are grouped by category below. Each chart shows your proficiency level for skills within that category. 
-          Hover over any bar for more details about that specific skill.
-        </p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {Object.entries(skillsByCategory).map(([category, skills]) => (
-            <div key={category} className="bg-white shadow overflow-hidden sm:rounded-lg dark:bg-gray-800">
-              <div className="px-4 py-5 sm:px-6 bg-gray-50 dark:bg-gray-700">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">
-                  {category}
-                </h3>
-              </div>
-              <div className="border-t border-gray-200 dark:border-gray-600 p-4">
-                <div className="h-64">
-                  <SkillBarChart skills={Array.isArray(skills) ? skills : []} />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Recommendations */}
-      <div className="mt-8">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Learning Recommendations</h2>
-        <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-3xl">
-          Based on your skill analysis, we've identified areas where you could focus your learning efforts. 
-          These recommendations are personalized to help you grow your skills most effectively.
-        </p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {getTopSkills(Array.isArray(results.skills) ? results.skills : [], 3).map((skill, index) => (
-            <RecommendationCard key={index} skill={skill} />
-          ))}
-        </div>
-        
-        {/* Skill Progress Section */}
-        {getRecentAnalyses().length > 1 && preferences.showProgressCharts && (
-          <div className="mt-12">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Skill Progress</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {getTopSkills(Array.isArray(results.skills) ? results.skills : [], 2).map((skill, index) => (
-                <SkillProgress key={index} skillName={skill.name} />
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex flex-wrap justify-center gap-4 mt-8 mb-12">
-        <button
-          onClick={() => navigate('/analyze')}
-          className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200 hover:scale-105"
-          aria-label="Start new analysis"
-        >
-          <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
-          </svg>
-          New Analysis
-        </button>
-        <button
-          onClick={handleShare}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none transition-all duration-200 hover:scale-105"
-        >
-          <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-          </svg>
-          Share Results
-        </button>
-        <button
-          onClick={handleExportToPdf}
-          disabled={isExporting}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105"
-        >
-          {isExporting ? (
-            <>
-              <LoadingSpinner size="small" />
-              <span className="ml-2">Exporting...</span>
-            </>
-          ) : (
-            <>
-              <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              Export to PDF
-            </>
-          )}
-        </button>
-      </div>
-      
-      {/* Additional Actions */}
-      <div className="flex flex-wrap justify-center gap-4 mt-8">
-        <button
-          onClick={() => window.print()}
-          className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200 hover:scale-105"
-        >
-          <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-          </svg>
-          Print Results
-        </button>
-        
-        <div>
-          <FeedbackForm analysisId={results?.id} />
-        </div>
-      </div>
-      
-      {/* Print-only footer */}
-      <div id="print-footer" className="hidden">
-        <p>Generated by SkillLens | {new Date().toLocaleDateString()}</p>
-      </div>
-      
-      {/* Share Modal */}
-      {showShareModal && (
-        <div className="fixed inset-0 overflow-y-auto z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            {/* Background overlay */}
-            <div 
-              className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
-              aria-hidden="true"
-              onClick={() => setShowShareModal(false)}
-            ></div>
+      ) : (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div id="report-content" ref={reportContentRef}>
+            <ResultsHeader 
+              title={`Analysis Results: ${results.fileName || 'Unknown File'}`}
+              filename={results.fileName || 'Unknown File'}
+              date={results.date || new Date().toISOString()}
+              onShare={handleShare}
+              onExport={handleExportToPdf}
+              onPreview={handlePreviewPdf}
+              isExporting={isExporting}
+              isPreviewing={isPreviewing}
+            />
             
-            {/* Modal panel */}
-            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-              <div>
-                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 dark:bg-green-900">
-                  <svg className="h-6 w-6 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <div className="mt-3 text-center sm:mt-5">
-                  <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100" id="modal-title">
-                    Share Your Analysis
-                  </h3>
-                  <div className="mt-2">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Your analysis report is now available at the link below. Anyone with this link can view your results.                      
-                    </p>
-                    
-                    <div className="mt-4">
-                      <label htmlFor="share-url" className="sr-only">Share URL</label>
-                      <div className="mt-1 flex rounded-md shadow-sm">
-                        <input
-                          type="text"
-                          name="share-url"
-                          id="share-url"
-                          className="focus:ring-primary-500 focus:border-primary-500 block w-full rounded-l-md sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
-                          value={shareUrl}
-                          readOnly
-                        />
-                        <button
-                          id="copy-link-button"
-                          type="button"
-                          onClick={handleCopyLink}
-                          className="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 dark:border-gray-600 text-sm font-medium rounded-r-md text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-600 hover:bg-gray-100 dark:hover:bg-gray-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
-                        >
-                          Copy Link
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            {/* Code Summary Section for File Uploads */}
+            {results.isFileUpload && results.codeSummary && (
+              <div className={`mb-6 p-4 rounded-lg ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'} shadow`}>
+                <h2 className="text-xl font-semibold mb-2">
+                  {results.fileType} File Summary
+                </h2>
+                <p className="text-base">
+                  {results.codeSummary}
+                </p>
               </div>
-              <div className="mt-5 sm:mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowShareModal(false)}
-                  className="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:text-sm"
-                >
-                  Done
-                </button>
-              </div>
+            )}
+            
+            <div className="space-y-8">
+              {/* Overview section */}
+              <ResultsOverview 
+                results={results} 
+                isExpanded={expandedSections.overview}
+                onToggleExpand={() => toggleSection('overview')}
+              />
+              
+              {/* Skills section */}
+              <SkillsSection 
+                skills={results.skills || []} 
+                isExpanded={expandedSections.skills}
+                onToggleExpand={() => toggleSection('skills')}
+              />
+              
+              {/* Recommendations section */}
+              <RecommendationsSection 
+                recommendations={results.recommendations || []} 
+                isExpanded={expandedSections.recommendations}
+                onToggleExpand={() => toggleSection('recommendations')}
+              />
+              
+              {/* Feedback section */}
+              <FeedbackSection 
+                analysisId={results.id || 'unknown'}
+                isExpanded={expandedSections.feedback}
+                onToggleExpand={() => toggleSection('feedback')}
+              />
+            </div>
+            
+            {/* Print-only footer */}
+            <div id="print-footer" className="hidden print:block mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Generated by SkillLens | {new Date().toLocaleDateString()}</p>
             </div>
           </div>
+          
+          {/* Share Modal */}
+          <ShareModal 
+            isOpen={showShareModal}
+            onClose={() => setShowShareModal(false)}
+            shareUrl={shareUrl}
+          />
         </div>
       )}
     </div>

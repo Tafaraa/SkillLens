@@ -6,8 +6,11 @@ import { motion } from 'framer-motion'
 import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
 
 const SkillRadarChart = ({ skills }) => {
+  // Handle null or undefined skills
+  const safeSkills = skills || []
+  
   // Use utility function to transform skills data for radar chart
-  const chartData = prepareRadarChartData(skills || [])
+  const chartData = prepareRadarChartData(safeSkills)
   const { isDarkMode } = useTheme()
   const [showHelp, setShowHelp] = useState(false)
   const [hasData, setHasData] = useState(false)
