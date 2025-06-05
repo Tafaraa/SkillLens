@@ -53,13 +53,79 @@ const ResultsPage = () => {
             language: safeResults.language || 'Unknown',
             libraries: safeResults.libraries || [],
             skills: safeResults.skills || [],
-            recommendations: safeResults.recommendations || [],
             timestamp: safeResults.timestamp || new Date().toISOString(),
             date: safeResults.timestamp || new Date().toISOString(),
             isFileUpload: isFileUpload,
             isGitHubRepo: isGitHubRepo,
             repository_url: safeResults.repository_url || ''
           };
+          
+          // Ensure skills data is valid but don't add default skills
+          if (!formattedResults.skills || !Array.isArray(formattedResults.skills)) {
+            console.log("No valid skills array found in results, initializing empty array");
+            formattedResults.skills = [];
+          } else {
+            console.log("Skills found in analysis:", formattedResults.skills);
+          }
+          
+          // Generate recommendations based on skills if they're missing
+          console.log("Original recommendations:", safeResults.recommendations);
+          console.log("Available skills for recommendations:", formattedResults.skills);
+          
+          if (!safeResults.recommendations || !Array.isArray(safeResults.recommendations) || safeResults.recommendations.length === 0) {
+            // Create recommendations from skills data
+            // Make sure we have valid skills to work with
+            const filteredSkills = formattedResults.skills
+              .filter(skill => {
+                // Ensure skill has required properties
+                return skill && 
+                       typeof skill.name === 'string' && 
+                       skill.name.trim() !== '' && 
+                       typeof skill.score === 'number';
+              });
+            
+            console.log("Filtered skills for recommendations:", filteredSkills);
+            
+            // If we have skills, create recommendations
+            if (filteredSkills.length > 0) {
+              formattedResults.recommendations = filteredSkills
+                .sort((a, b) => a.score - b.score) // Sort by score ascending (lowest first)
+                .slice(0, 3) // Take the 3 lowest scoring skills
+                .map(skill => ({
+                  name: skill.name.trim(),
+                  category: typeof skill.category === 'string' ? skill.category.trim() : 'Development',
+                  score: skill.score,
+                  description: `Improve your ${skill.name} skills to enhance your ${skill.category || 'development'} capabilities.`
+                }));
+            } else {
+              // Create default recommendations if no valid skills
+              formattedResults.recommendations = [
+                {
+                  name: "JavaScript",
+                  category: "Frontend",
+                  score: 0.5,
+                  description: "Improve your JavaScript skills to enhance your web development capabilities."
+                },
+                {
+                  name: "Python",
+                  category: "Backend",
+                  score: 0.6,
+                  description: "Improve your Python skills to enhance your backend development capabilities."
+                },
+                {
+                  name: "Git",
+                  category: "Development",
+                  score: 0.7,
+                  description: "Improve your Git skills to enhance your development workflow."
+                }
+              ];
+            }
+              
+            console.log("Generated recommendations:", formattedResults.recommendations);
+          } else {
+            formattedResults.recommendations = safeResults.recommendations;
+            console.log("Using existing recommendations:", formattedResults.recommendations);
+          }
           
           // Generate code summary based on skills
           let codeSummary = '';
@@ -103,15 +169,47 @@ const ResultsPage = () => {
           
           formattedResults.skillCategories = skillCategories;
           
-          // Ensure all skills have valid scores
-          if (safeResults.skills && Array.isArray(safeResults.skills)) {
-            safeResults.skills = safeResults.skills.map(skill => ({
-              ...skill,
-              score: typeof skill.score === 'number' && !isNaN(skill.score) ? skill.score : 0
-            }));
+          // Only generate recommendations from actual skills found in the analysis
+          if (formattedResults.skills && Array.isArray(formattedResults.skills) && formattedResults.skills.length > 0) {
+            console.log("Generating recommendations from actual skills found in analysis");
+            
+            // Filter valid skills
+            const validSkills = formattedResults.skills.filter(skill => 
+              skill && 
+              typeof skill.name === 'string' && 
+              skill.name.trim() !== '' && 
+              typeof skill.score === 'number'
+            );
+            
+            console.log("Valid skills for recommendations:", validSkills);
+            
+            if (validSkills.length > 0) {
+              // Sort by score (lowest first) to recommend areas for improvement
+              formattedResults.recommendations = validSkills
+                .sort((a, b) => a.score - b.score)
+                .slice(0, 3) // Take the 3 lowest scoring skills
+                .map(skill => ({
+                  name: skill.name.trim(),
+                  category: typeof skill.category === 'string' ? skill.category.trim() : 'Development',
+                  score: skill.score,
+                  description: `Improve your ${skill.name} skills to enhance your ${skill.category || 'development'} capabilities.`
+                }));
+                
+              console.log("Generated recommendations from actual skills:", formattedResults.recommendations);
+            } else {
+              // No valid skills found, set empty recommendations
+              formattedResults.recommendations = [];
+              console.log("No valid skills found, setting empty recommendations");
+            }
+          } else {
+            // No skills data, set empty recommendations
+            formattedResults.recommendations = [];
+            console.log("No skills data found, setting empty recommendations");
           }
           
+          // Set results state
           setResults(formattedResults);
+          console.log("Final results with recommendations:", formattedResults);
         } else {
           console.warn('No analysis results found in storage');
           // If no results found, redirect to analyze page
@@ -133,7 +231,26 @@ const ResultsPage = () => {
             { name: 'Python', score: 0.6, category: 'Backend' },
             { name: 'FastAPI', score: 0.5, category: 'Backend' }
           ],
-          recommendations: []
+          recommendations: [
+            {
+              name: "JavaScript",
+              category: "Frontend",
+              score: 0.7,
+              description: "Improve your JavaScript skills to enhance your web development capabilities."
+            },
+            {
+              name: "Python",
+              category: "Backend",
+              score: 0.6,
+              description: "Improve your Python skills to enhance your backend development capabilities."
+            },
+            {
+              name: "Git",
+              category: "Development",
+              score: 0.5,
+              description: "Improve your Git skills to enhance your development workflow."
+            }
+          ]
         };
         setResults(fallbackResults);
       } finally {

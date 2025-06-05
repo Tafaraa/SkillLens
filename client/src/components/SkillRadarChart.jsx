@@ -3,23 +3,48 @@ import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadius
 import { prepareRadarChartData } from '../utils/chartUtils'
 import { useTheme } from '../hooks/useTheme.jsx'
 import { motion } from 'framer-motion'
-import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
+import { QuestionMarkCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 
 const SkillRadarChart = ({ skills }) => {
   // Handle null or undefined skills
   const safeSkills = skills || []
   
-  // Use utility function to transform skills data for radar chart
-  const chartData = prepareRadarChartData(safeSkills)
+  // Use state to store processed chart data
+  const [chartData, setChartData] = useState([])
   const { isDarkMode } = useTheme()
   const [showHelp, setShowHelp] = useState(false)
   const [hasData, setHasData] = useState(false)
+  const [error, setError] = useState(null)
 
-  // Check if we have valid data to display
+  // Process skills data and check if we have valid data to display
   useEffect(() => {
     console.log('SkillRadarChart received skills:', skills)
-    setHasData(Array.isArray(skills) && skills.length > 0 && Array.isArray(chartData) && chartData.length > 0)
-  }, [skills, chartData])
+    
+    if (!Array.isArray(skills)) {
+      setError('Skills data is not an array')
+      setHasData(false)
+      return
+    }
+    
+    if (skills.length === 0) {
+      setError('No skills detected in the analyzed code')
+      setHasData(false)
+      return
+    }
+    
+    // Process the data
+    try {
+      const processedData = prepareRadarChartData(skills)
+      console.log('Processed radar chart data:', processedData)
+      setChartData(processedData)
+      setHasData(processedData.length > 0)
+      setError(null)
+    } catch (err) {
+      console.error('Error processing skills data for radar chart:', err)
+      setError('Error processing skills data')
+      setHasData(false)
+    }
+  }, [skills])
 
   // Custom tooltip formatter
   const CustomTooltip = ({ active, payload }) => {
@@ -63,7 +88,7 @@ const SkillRadarChart = ({ skills }) => {
       <div className="absolute top-0 right-0 z-10">
         <button 
           onClick={() => setShowHelp(prev => !prev)}
-          className="flex items-center text-xs text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+          className={`flex items-center text-xs ${isDarkMode ? 'text-gray-400 hover:text-primary-400' : 'text-gray-500 hover:text-primary-600'} transition-colors`}
           aria-label="Show chart explanation"
         >
           <QuestionMarkCircleIcon className="h-5 w-5 mr-1" />
@@ -83,16 +108,28 @@ const SkillRadarChart = ({ skills }) => {
         )}
       </div>
       
-      {!hasData ? (
-        <div className="flex flex-col items-center justify-center h-full min-h-[200px] bg-gray-50 dark:bg-gray-800 rounded-md p-6">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400 dark:text-gray-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      {error && (
+        <div className={`p-4 rounded-md ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'} border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} mb-4`}>
+          <div className="flex items-center">
+            <ExclamationTriangleIcon className={`h-5 w-5 ${isDarkMode ? 'text-amber-400' : 'text-amber-500'} mr-2`} />
+            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{error}</p>
+          </div>
+          <p className={`mt-2 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            Try uploading a different file or repository with more code to analyze.
+          </p>
+        </div>
+      )}
+      
+      {!hasData && !error ? (
+        <div className={`flex flex-col items-center justify-center h-64 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'} rounded-md p-6 border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
           </svg>
-          <p className="text-gray-600 dark:text-gray-300 text-center">No skill data available to display.</p>
-          <p className="text-gray-500 dark:text-gray-400 text-sm text-center mt-2">Try uploading a different file or repository.</p>
+          <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'} text-center`}>Waiting for skill data...</p>
+          <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'} text-sm text-center mt-2`}>Upload a file or repository to analyze skills.</p>
         </div>
-      ) : (
+      ) : hasData ? (
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
             <PolarGrid 
@@ -134,9 +171,9 @@ const SkillRadarChart = ({ skills }) => {
             />
           </RadarChart>
         </ResponsiveContainer>
-      )}
+      ) : null}
     </div>
-  )
+  );
 }
 
 export default SkillRadarChart

@@ -5,6 +5,9 @@ import axios from 'axios';
 const isProduction = import.meta.env.MODE === 'production';
 const API_URL = import.meta.env.VITE_API_URL || (isProduction ? 'https://api.skilllens.com' : 'http://localhost:8000');
 
+// Log the API URL for debugging
+console.log('RecommendationCard - API URL:', API_URL);
+
 // Create axios instance with default config for resources
 const resourcesClient = axios.create({
   baseURL: API_URL,
@@ -40,6 +43,54 @@ const FALLBACK_RESOURCES = {
       description: "Step by step guide to becoming a backend developer"
     }
   ],
+  DevOps: [
+    {
+      title: "DevOps Roadmap",
+      url: "https://roadmap.sh/devops",
+      description: "Step by step guide to DevOps practices"
+    },
+    {
+      title: "Docker Documentation",
+      url: "https://docs.docker.com/",
+      description: "Official Docker documentation"
+    }
+  ],
+  Mobile: [
+    {
+      title: "React Native Documentation",
+      url: "https://reactnative.dev/docs/getting-started",
+      description: "Official React Native documentation"
+    },
+    {
+      title: "Mobile Development Roadmap",
+      url: "https://roadmap.sh/android",
+      description: "Guide to mobile app development"
+    }
+  ],
+  Database: [
+    {
+      title: "Database Design Tutorial",
+      url: "https://www.tutorialspoint.com/dbms/index.htm",
+      description: "Learn database design principles"
+    },
+    {
+      title: "SQL Tutorial",
+      url: "https://www.w3schools.com/sql/",
+      description: "Interactive SQL tutorial"
+    }
+  ],
+  Development: [
+    {
+      title: "GitHub Learning Lab",
+      url: "https://lab.github.com/",
+      description: "Interactive courses on Git and GitHub"
+    },
+    {
+      title: "The Odin Project",
+      url: "https://www.theodinproject.com/",
+      description: "Free full stack curriculum"
+    }
+  ],
   Other: [
     {
       title: "Web Development Roadmap",
@@ -55,6 +106,15 @@ const FALLBACK_RESOURCES = {
 };
 
 const RecommendationCard = ({ skill }) => {
+  // Add console log to debug what's being passed to the component
+  console.log("Skill passed to RecommendationCard:", skill);
+  
+  // Immediately check if skill is valid and has required properties
+  if (!skill || (typeof skill !== 'object')) {
+    console.error("Invalid skill object passed to RecommendationCard");
+    return null;
+  }
+  
   const [expanded, setExpanded] = useState(false);
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -62,24 +122,39 @@ const RecommendationCard = ({ skill }) => {
   
   useEffect(() => {
     // Get resources for this skill from API
-    if (skill && skill.name) {
+    if (skill) {
       const fetchResources = async () => {
         try {
           setLoading(true);
-          // Fetch resources for this specific skill from our API
-          const response = await resourcesClient.get(`/resources/${encodeURIComponent(skill.name)}`);
+          // Use the skill name if available, otherwise use the category, with proper trimming
+          const skillName = typeof skill.name === 'string' ? skill.name.trim() : 
+                          typeof skill.category === 'string' ? skill.category.trim() : null;
           
-          if (response.data && Array.isArray(response.data.resources)) {
-            setResources(response.data.resources);
-          } else {
-            // If API returns unexpected format, use fallback
-            console.warn(`API returned unexpected format for ${skill.name} resources`);
+          console.log("Attempting to fetch resources for skill:", skillName);
+          
+          // Check if we have a valid skill name before making the API call
+          if (!skillName) {
+            console.warn("Missing skill name and category. Cannot fetch resources.");
+            useFallbackResources();
+            return;
+          }
+          
+          try {
+            // Fetch resources for this specific skill from our API
+            const response = await resourcesClient.get(`/resources/${encodeURIComponent(skillName)}`);
+            
+            if (response.data && Array.isArray(response.data.resources)) {
+              setResources(response.data.resources);
+            } else {
+              // If API returns unexpected format, use fallback
+              console.warn(`API returned unexpected format for ${skillName} resources`);
+              useFallbackResources();
+            }
+          } catch (error) {
+            console.error(`Error fetching resources for ${skillName}:`, error);
+            setError(`Failed to load resources for ${skillName}`);
             useFallbackResources();
           }
-        } catch (error) {
-          console.error(`Error fetching resources for ${skill.name}:`, error);
-          setError(`Failed to load resources for ${skill.name}`);
-          useFallbackResources();
         } finally {
           setLoading(false);
         }
@@ -87,18 +162,23 @@ const RecommendationCard = ({ skill }) => {
       
       // Function to use fallback resources if API fails
       const useFallbackResources = () => {
-        const category = skill.category || 'Other';
+        // Ensure category is a string and properly formatted
+        const category = typeof skill.category === 'string' ? skill.category.trim() : 'Other';
+        console.log("Using fallback resources for category:", category);
+        
+        // Check if we have resources for this category, otherwise use Other
         if (FALLBACK_RESOURCES[category]) {
+          console.log("Found fallback resources for category:", category);
           setResources(FALLBACK_RESOURCES[category]);
-        } else if (FALLBACK_RESOURCES.Other) {
-          // Default to Other resources if no match
-          setResources(FALLBACK_RESOURCES.Other);
         } else {
-          // Empty array if no fallbacks available
-          setResources([]);
+          console.log("Using default 'Other' fallback resources");
+          setResources(FALLBACK_RESOURCES.Other || []);
         }
       };
       
+      // Immediately use fallback resources to avoid loading state
+      useFallbackResources();
+      // Then try to fetch from API
       fetchResources();
     } else {
       setLoading(false);
@@ -108,26 +188,41 @@ const RecommendationCard = ({ skill }) => {
   
   if (!skill) return null;
   
-  // Ensure skill has valid properties
-  const skillName = skill.name || 'Unknown Skill';
-  const skillCategory = skill.category || 'Development';
-  const skillDescription = skill.description || `Improve your ${skillName} skills to enhance your ${skillCategory} capabilities.`;
+  // Extract skill properties with validation
+  const skillName = skill && typeof skill.name === 'string' ? skill.name.trim() : 'JavaScript';
+  const skillCategory = skill && typeof skill.category === 'string' ? skill.category.trim() : 'Development';
+  const skillDescription = skill && typeof skill.description === 'string' ? skill.description : 
+    `Improve your ${skillName} skills to enhance your ${skillCategory} capabilities.`;
+  const skillScore = skill && typeof skill.score === 'number' ? skill.score : 0.5;
+  
+  // Debug the skill object
+  console.log("RecommendationCard received skill:", skill);
+  console.log("Extracted properties:", { skillName, skillCategory, skillDescription, skillScore });
+  
+  // Always ensure we have valid data to display
+  if (!skillName || !skillCategory) {
+    console.warn("RecommendationCard received invalid skill data, using fallbacks");
+  }
   
   // Calculate skill level text based on score (handle NaN cases)
-  const scoreValue = typeof skill.score === 'number' && !isNaN(skill.score) ? skill.score : 0;
-  const score = Math.round(scoreValue * 100);
-  let skillLevel = "Beginner";
-  let levelColor = "text-red-600 dark:text-red-400";
+  const score = Math.round(skillScore * 100);
+  console.log("Skill score for", skillName, ":", skillScore, "formatted as:", score);
+  
+  let skillLevel;
+  let levelColor;
   
   if (score >= 80) {
     skillLevel = "Expert";
     levelColor = "text-green-600 dark:text-green-400";
   } else if (score >= 60) {
-    skillLevel = "Advanced";
+    skillLevel = "Proficient";
     levelColor = "text-blue-600 dark:text-blue-400";
   } else if (score >= 40) {
     skillLevel = "Intermediate";
     levelColor = "text-yellow-600 dark:text-yellow-400";
+  } else {
+    skillLevel = "Beginner";
+    levelColor = "text-red-600 dark:text-red-400";
   }
   
   return (
@@ -175,7 +270,11 @@ const RecommendationCard = ({ skill }) => {
           </button>
         </div>
         
-        {resources.length > 0 ? (
+        {loading ? (
+          <div className="text-center py-4 bg-gray-50 dark:bg-gray-700 rounded">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Loading learning resources...</p>
+          </div>
+        ) : resources.length > 0 ? (
           <ul id="resource-list" className="space-y-2 transition-all duration-200">
             {resources
               .slice(0, expanded ? resources.length : 2)
@@ -208,7 +307,7 @@ const RecommendationCard = ({ skill }) => {
           </ul>
         ) : (
           <div className="text-center py-4 bg-gray-50 dark:bg-gray-700 rounded">
-            <p className="text-sm text-gray-500 dark:text-gray-400">Loading learning resources...</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">No learning resources available for this skill.</p>
           </div>
         )}
       </div>

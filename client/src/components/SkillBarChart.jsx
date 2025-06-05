@@ -3,23 +3,48 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Toolti
 import { prepareBarChartData } from '../utils/chartUtils'
 import { useTheme } from '../hooks/useTheme.jsx'
 import { motion } from 'framer-motion'
-import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
+import { QuestionMarkCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 
 const SkillBarChart = ({ skills }) => {
   // Handle null or undefined skills
   const safeSkills = skills || []
   
   // Use utility function to transform skills data for bar chart
-  const chartData = prepareBarChartData(safeSkills)
+  const [chartData, setChartData] = useState([])
   const { isDarkMode } = useTheme()
   const [showHelp, setShowHelp] = useState(false)
   const [hasData, setHasData] = useState(false)
+  const [error, setError] = useState(null)
   
-  // Check if we have valid data to display
+  // Process skills data and check if we have valid data to display
   useEffect(() => {
     console.log('SkillBarChart received skills:', skills)
-    setHasData(Array.isArray(skills) && skills.length > 0 && Array.isArray(chartData) && chartData.length > 0)
-  }, [skills, chartData])
+    
+    if (!Array.isArray(skills)) {
+      setError('Skills data is not an array')
+      setHasData(false)
+      return
+    }
+    
+    if (skills.length === 0) {
+      setError('No skills detected in the analyzed code')
+      setHasData(false)
+      return
+    }
+    
+    // Process the data
+    try {
+      const processedData = prepareBarChartData(skills)
+      console.log('Processed chart data:', processedData)
+      setChartData(processedData)
+      setHasData(processedData.length > 0)
+      setError(null)
+    } catch (err) {
+      console.error('Error processing skills data:', err)
+      setError('Error processing skills data')
+      setHasData(false)
+    }
+  }, [skills])
 
   // Custom tooltip formatter
   const CustomTooltip = ({ active, payload, label }) => {
@@ -73,21 +98,34 @@ const SkillBarChart = ({ skills }) => {
       </div>
       
       {showHelp && (
-        <div className="mb-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-md text-sm text-gray-600 dark:text-gray-300">
-          <p>This bar chart shows your proficiency level in various skills. The higher the bar, the more proficient you are in that skill.</p>
+        <motion.div 
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.3 }}
+          className={`mb-4 p-3 rounded-md ${isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-700'}`}
+        >
+          <p className="text-sm">
+            This chart shows your proficiency level in various skills based on the code analysis. 
+            Higher percentages indicate stronger proficiency in that skill area.
+          </p>
+        </motion.div>
+      )}
+      
+      {error && (
+        <div className={`p-4 rounded-md ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'} border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} mb-4`}>
+          <div className="flex items-center">
+            <ExclamationTriangleIcon className={`h-5 w-5 ${isDarkMode ? 'text-amber-400' : 'text-amber-500'} mr-2`} />
+            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{error}</p>
+          </div>
+          <p className={`mt-2 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            Try uploading a different file or repository with more code to analyze.
+          </p>
         </div>
       )}
       
-      {!hasData ? (
-        <div className="flex flex-col items-center justify-center h-full min-h-[200px] bg-gray-50 dark:bg-gray-800 rounded-md p-6">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400 dark:text-gray-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-          <p className="text-gray-600 dark:text-gray-300 text-center">No skill data available to display.</p>
-          <p className="text-gray-500 dark:text-gray-400 text-sm text-center mt-2">Try uploading a different file or repository.</p>
-        </div>
-      ) : (
-        <ResponsiveContainer width="100%" height="100%">
+      {hasData ? (
+        <ResponsiveContainer width="100%" height={chartData.length * 60 + 40} className="mt-4">
           <BarChart
             data={chartData}
             layout="vertical"
@@ -95,23 +133,24 @@ const SkillBarChart = ({ skills }) => {
           >
             <CartesianGrid 
               strokeDasharray="3 3" 
-              stroke={isDarkMode ? '#374151' : '#E5E7EB'} 
               horizontal={true}
               vertical={false}
+              stroke={isDarkMode ? '#374151' : '#E5E7EB'}
             />
             <XAxis 
               type="number" 
-              domain={[0, 100]} 
+              domain={[0, 100]}
               tick={{ fill: isDarkMode ? '#D1D5DB' : '#4B5563', fontSize: 12 }}
-              stroke={isDarkMode ? '#6B7280' : '#9CA3AF'}
-              tickFormatter={(value) => `${value}%`}
+              axisLine={{ stroke: isDarkMode ? '#4B5563' : '#D1D5DB' }}
+              tickLine={{ stroke: isDarkMode ? '#4B5563' : '#D1D5DB' }}
             />
             <YAxis 
               dataKey="name" 
               type="category" 
-              width={100} 
-              tick={{ fill: isDarkMode ? '#D1D5DB' : '#4B5563', fontSize: 12, fontWeight: 500 }}
-              stroke={isDarkMode ? '#6B7280' : '#9CA3AF'}
+              tick={{ fill: isDarkMode ? '#D1D5DB' : '#4B5563', fontSize: 12 }}
+              width={100}
+              axisLine={{ stroke: isDarkMode ? '#4B5563' : '#D1D5DB' }}
+              tickLine={{ stroke: isDarkMode ? '#4B5563' : '#D1D5DB' }}
             />
             <Tooltip 
               content={<CustomTooltip />}
@@ -140,9 +179,17 @@ const SkillBarChart = ({ skills }) => {
             </Bar>
           </BarChart>
         </ResponsiveContainer>
+      ) : !error && (
+        <div className={`flex flex-col items-center justify-center h-64 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'} rounded-md p-6 border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+          <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'} text-center`}>Waiting for skill data...</p>
+          <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'} text-sm text-center mt-2`}>Upload a file or repository to analyze skills.</p>
+        </div>
       )}
     </div>
-  )
+  );
 }
 
 export default SkillBarChart

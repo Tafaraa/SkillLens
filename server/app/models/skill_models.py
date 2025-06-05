@@ -1,4 +1,4 @@
-from pydantic import BaseModel, HttpUrl, Field
+from pydantic import BaseModel, HttpUrl, Field, AnyHttpUrl
 from typing import List, Optional, Dict
 from datetime import datetime
 
@@ -15,6 +15,10 @@ class AnalysisRequest(BaseModel):
     repository_url: HttpUrl
     branch: Optional[str] = "main"
     depth: Optional[int] = Field(1, ge=1, le=3)  # How deep to analyze (1-3)
+
+class RepoAnalysisRequest(BaseModel):
+    """Model for the new GitHub repository analysis request format"""
+    github_url: AnyHttpUrl
 
 class AnalysisResponse(BaseModel):
     """Model for analysis response"""

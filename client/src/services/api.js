@@ -3,7 +3,11 @@ import axios from 'axios'
 // Get API URL from environment variables or use default
 // Use secure protocol when in production
 const isProduction = import.meta.env.MODE === 'production'
+// Check if we have an API URL from environment variables, otherwise use default
 const API_URL = import.meta.env.VITE_API_URL || (isProduction ? 'https://api.skilllens.com' : 'http://localhost:8000')
+
+// Log the API URL for debugging
+console.log('API URL:', API_URL)
 
 // Create axios instance with default config
 const apiClient = axios.create({
@@ -83,6 +87,7 @@ const apiService = {
   
   // Health check
   healthCheck: () => {
+    console.log('Performing health check to:', `${API_URL}/health`)
     return apiClient.get('/health')
   },
   

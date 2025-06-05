@@ -1,16 +1,43 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import useUserPreferences from '../hooks/useUserPreferences'
 import ThemeToggle from './ThemeToggle'
 import { useTheme } from '../hooks/useTheme.jsx'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const UserSettings = () => {
   const [isOpen, setIsOpen] = useState(false)
   const { isDarkMode } = useTheme()
+  const dropdownRef = useRef(null)
+  const buttonRef = useRef(null)
+  const containerRef = useRef(null)
   const [preferences, updatePreferences] = useUserPreferences({
     showRecentAnalyses: true,
     showProgressCharts: true,
     defaultAnalysisTab: 'file' // 'file' or 'github'
   })
+  
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isOpen && 
+          dropdownRef.current && 
+          !dropdownRef.current.contains(event.target) &&
+          buttonRef.current &&
+          !buttonRef.current.contains(event.target)) {
+        setIsOpen(false)
+      }
+    }
+    
+    // Add a small delay to ensure DOM is updated
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside)
+    }, 10)
+    
+    return () => {
+      clearTimeout(timeoutId)
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen])
 
   const toggleSetting = (key) => {
     updatePreferences({ [key]: !preferences[key] })
@@ -21,29 +48,45 @@ const UserSettings = () => {
   }
 
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       {/* Settings button */}
-      <button
+      <motion.button
+        ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center text-gray-500 hover:text-indigo dark:text-gray-400 dark:hover:text-indigo focus:outline-none rounded-md p-1 transition-all duration-200 hover:scale-110 active:scale-95"
+        className="flex items-center text-gray-500 hover:text-indigo dark:text-gray-400 dark:hover:text-indigo focus:outline-none rounded-md p-1 transition-colors duration-200"
         aria-label="User settings"
         aria-expanded={isOpen ? "true" : "false"}
         aria-controls="settings-dropdown"
+        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.1 }}
       >
         <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
-      </button>
+      </motion.button>
 
       {/* Settings dropdown */}
-      <div 
-        id="settings-dropdown"
-        className={`origin-top-right absolute right-0 mt-2 w-64 rounded-lg shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-50 transition-all duration-200 ease-in-out transform ${isOpen ? 'opacity-100 scale-100 animate-slide-in' : 'opacity-0 scale-95 pointer-events-none'}`}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="settings-heading"
-      >
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            ref={dropdownRef}
+            id="settings-dropdown"
+            className="absolute top-full right-0 mt-2 w-64 rounded-lg shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-[100]"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="settings-heading"
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            style={{
+              position: 'absolute',
+              right: 0,
+              marginTop: '10px',
+              width: '16rem'
+            }}
+          >
           <div className="py-1" role="menu" aria-orientation="vertical">
             <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
               <h3 id="settings-heading" className="text-sm font-medium text-gray-900 dark:text-gray-100">User Settings</h3>
@@ -116,8 +159,9 @@ const UserSettings = () => {
               </button>
             </div>
           </div>
-        </div>
-      
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

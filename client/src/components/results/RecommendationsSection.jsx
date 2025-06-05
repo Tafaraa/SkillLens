@@ -11,8 +11,27 @@ const RecommendationsSection = ({
 }) => {
   const { isDarkMode } = useTheme()
   
-  // Ensure recommendations is an array
-  const recommendationsArray = Array.isArray(recommendations) ? recommendations : []
+  // Debug what recommendations are being received
+  console.log("Recommendations received in RecommendationsSection:", recommendations);
+  
+  // Ensure recommendations is an array and filter out any empty or invalid items
+  let recommendationsArray = [];
+  
+  if (Array.isArray(recommendations) && recommendations.length > 0) {
+    // Filter valid recommendations
+    recommendationsArray = recommendations.filter(item => {
+      // Log each item for debugging
+      console.log("Recommendation item:", item);
+      return item && (typeof item.name === 'string' || typeof item.category === 'string');
+    });
+    
+    console.log("Filtered recommendations array:", recommendationsArray);
+  }
+  
+  // Don't use default recommendations - only show what's actually found in the analysis
+  if (recommendationsArray.length === 0) {
+    console.log("No valid recommendations found, showing empty state");
+  }
   
   return (
     <div className={`mb-6 rounded-lg shadow-sm border ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
@@ -54,17 +73,20 @@ const RecommendationsSection = ({
               </div>
             ) : (
               <div className="text-center py-10">
-                <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
-                <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-gray-100">No recommendations available</h3>
+                <div className="inline-block p-4 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
+                  <svg className="h-10 w-10 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">No skill recommendations available</h3>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  We couldn't generate personalized learning recommendations based on your current analysis.
+                  We couldn't identify any skills that need improvement in your current code analysis.
                 </p>
                 <div className="mt-6">
                   <button
                     type="button"
-                    className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${isDarkMode ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-blue-600 hover:bg-blue-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    onClick={() => window.location.href = '/analyze'}
                   >
                     Try with different code
                   </button>

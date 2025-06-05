@@ -15,12 +15,21 @@ export const prepareRadarChartData = (skills) => {
   }
   
   try {
-    return skills.map(skill => ({
+    // Log the input skills for debugging
+    console.log('prepareRadarChartData input:', skills)
+    
+    // Transform skills data for radar chart
+    const transformedData = skills.map(skill => ({
       name: skill.name || 'Unnamed Skill',
       value: Math.round((skill.score || 0) * 100), // Convert 0-1 score to 0-100 percentage
       category: skill.category || 'General',
       fullData: skill // Keep the full data for tooltips
     }))
+    
+    // Log the transformed data for debugging
+    console.log('prepareRadarChartData output:', transformedData)
+    
+    return transformedData
   } catch (error) {
     console.error('Error preparing radar chart data:', error)
     return []

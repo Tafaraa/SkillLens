@@ -110,15 +110,9 @@ const AnalyzeFormSection = ({ onAnalysisComplete, setIsLoading, setError }) => {
         if (response.data) {
           // Validate skills data
           if (!response.data.skills || !Array.isArray(response.data.skills) || response.data.skills.length === 0) {
-            console.warn('No skills data in analysis response, adding fallback data for testing')
-            // Add fallback data for testing
-            response.data.skills = [
-              { name: 'JavaScript', score: 0.75, category: 'Frontend' },
-              { name: 'React', score: 0.65, category: 'Frontend' },
-              { name: 'CSS', score: 0.8, category: 'Frontend' },
-              { name: 'Python', score: 0.6, category: 'Backend' },
-              { name: 'FastAPI', score: 0.5, category: 'Backend' }
-            ]
+            console.warn('No skills data in analysis response')
+            // Don't add fallback data - only show actual analysis results
+            response.data.skills = []
           }
           
           onAnalysisComplete(response.data)

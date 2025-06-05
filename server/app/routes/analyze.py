@@ -4,9 +4,10 @@ import os
 import tempfile
 import shutil
 import json
+import re
 from pathlib import Path
 
-from app.models.skill_models import AnalysisRequest, AnalysisResponse, SkillScore
+from app.models.skill_models import AnalysisRequest, RepoAnalysisRequest, AnalysisResponse, SkillScore
 from app.services.file_service import validate_file, save_upload, process_file_upload
 from app.services.parser import parse_github_repo
 from app.services.cache_service import CacheService
@@ -14,8 +15,9 @@ from app.core.skills import SkillExtractor
 from app.core.resources import ResourceManager
 from app.utils.helpers import clone_github_repo, get_file_paths, get_timestamp
 
-# Create router
+# Create routers
 router = APIRouter(prefix="/analyze", tags=["analyze"])
+api_router = APIRouter(prefix="/api", tags=["api"])
 
 # Initialize skill extractor, resource manager, and cache service
 skill_extractor = SkillExtractor()
@@ -251,3 +253,45 @@ async def analyze_github(request: AnalysisRequest):
     cache_service.cache_result(cache_key, response.dict())
     
     return response
+
+@api_router.post("/analyze-repo", response_model=AnalysisResponse)
+async def analyze_repo(request: RepoAnalysisRequest):
+    """
+    Analyze GitHub repository from URL
+    
+    Args:
+        request: Analysis request with GitHub URL
+        
+    Returns:
+        AnalysisResponse: Analysis results
+    """
+    # Extract username and repository name from GitHub URL
+    github_url = str(request.github_url)
+    
+    # Parse GitHub URL to extract username and repo name
+    pattern = r"https?://github\.com/([\w-]+)/([\w.-]+)(?:\.git)?(?:/.*)?$"
+    match = re.match(pattern, github_url)
+    
+    if not match:
+        return AnalysisResponse(
+            filename="Unknown",
+            language="Unknown",
+            libraries=[],
+            skills=[],
+            recommendations=[],
+            error="Invalid GitHub URL format",
+            timestamp=get_timestamp()
+        )
+    
+    username, repo_name = match.groups()
+    repo_url = f"https://github.com/{username}/{repo_name}"
+    
+    # Create an AnalysisRequest object to reuse existing functionality
+    analysis_request = AnalysisRequest(
+        repository_url=repo_url,
+        branch="main",  # Default to main branch
+        depth=1  # Default depth
+    )
+    
+    # Use the existing analyze_github function
+    return await analyze_github(analysis_request)

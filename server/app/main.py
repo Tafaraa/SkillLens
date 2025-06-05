@@ -24,8 +24,10 @@ origins = [
     "http://localhost:3000",
     "http://localhost:5173",  # Vite default port
     "http://localhost:5174",  # Additional Vite port
+    "http://localhost:5176",  # Additional Vite port
     "http://127.0.0.1:5173",
     "http://127.0.0.1:5174",
+    "http://127.0.0.1:5176",
     # Add your production domain here when deployed
 ]
 
@@ -53,15 +55,16 @@ async def limit_request_size(request: Request, call_next):
     return response
 
 # Health check endpoint
-@app.get("/health")
+@app.get("/health", tags=["health"])
 async def health_check():
-    return {"status": "healthy"}
+    return {"status": "ok", "message": "Server is running"}
 
 # Include routers
-app.include_router(analyze.router)
-app.include_router(feedback.router)
-app.include_router(resources.router)
-app.include_router(skills.router)
+app.include_router(analyze.router, prefix="/analyze", tags=["analyze"])
+app.include_router(analyze.api_router, prefix="/api", tags=["api"])
+app.include_router(feedback.router, prefix="/feedback", tags=["feedback"])
+app.include_router(resources.router, prefix="/resources", tags=["resources"])
+app.include_router(skills.router, prefix="/skills", tags=["skills"])
 
 if __name__ == "__main__":
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)

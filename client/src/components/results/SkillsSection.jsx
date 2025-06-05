@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTheme } from '../../hooks/useTheme.jsx'
-import { ChevronRightIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
+import { ChevronRightIcon, ChevronDownIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 import { motion } from 'framer-motion'
 import SkillRadarChart from '../SkillRadarChart'
 import SkillBarChart from '../SkillBarChart'
@@ -13,10 +13,48 @@ const SkillsSection = ({
 }) => {
   const { isDarkMode } = useTheme()
   const [activeChartType, setActiveChartType] = useState('radar')
+  const [hasValidSkills, setHasValidSkills] = useState(false)
+  const [errorMessage, setErrorMessage] = useState(null)
   
-  // Ensure skills is an array
+  // Ensure skills is an array and validate it
   const skillsArray = Array.isArray(skills) ? skills : []
   const skillsByCategory = groupSkillsByCategory(skillsArray)
+  
+  // Validate skills data on component mount and when skills change
+  useEffect(() => {
+    console.log('SkillsSection received skills:', skills)
+    
+    if (!Array.isArray(skills)) {
+      setErrorMessage('Skills data is not in the correct format')
+      setHasValidSkills(false)
+      return
+    }
+    
+    if (skills.length === 0) {
+      setErrorMessage('No skills detected in the analyzed code')
+      setHasValidSkills(false)
+      return
+    }
+    
+    // Check if skills have the required properties
+    const validSkills = skills.filter(skill => 
+      skill && 
+      typeof skill.name === 'string' && 
+      skill.name.trim() !== '' && 
+      typeof skill.score === 'number'
+    )
+    
+    console.log('Valid skills for charts:', validSkills)
+    
+    if (validSkills.length === 0) {
+      setErrorMessage('No valid skills found with required properties')
+      setHasValidSkills(false)
+      return
+    }
+    
+    setHasValidSkills(true)
+    setErrorMessage(null)
+  }, [skills])
   
   return (
     <div className={`mb-6 rounded-lg shadow-sm border ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
@@ -77,18 +115,36 @@ const SkillsSection = ({
             
             {/* Chart Container */}
             <div className="h-96 mb-6">
-              {activeChartType === 'radar' ? (
-                <SkillRadarChart skills={skillsArray} />
-              ) : (
-                <SkillBarChart skills={skillsArray} />
+              {errorMessage && (
+                <div className={`p-4 rounded-md ${isDarkMode ? 'bg-gray-750' : 'bg-gray-50'} border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                  <div className="flex items-center">
+                    <ExclamationTriangleIcon className={`h-5 w-5 ${isDarkMode ? 'text-amber-400' : 'text-amber-500'} mr-2`} />
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{errorMessage}</p>
+                  </div>
+                  <p className={`mt-2 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    Try uploading a different file or repository with more code to analyze.
+                  </p>
+                </div>
               )}
+              
+              {!errorMessage && activeChartType === 'radar' ? (
+                <SkillRadarChart skills={skillsArray} />
+              ) : !errorMessage ? (
+                <SkillBarChart skills={skillsArray} />
+              ) : null}
             </div>
             
             {/* Skills by Category */}
             <div className="mt-8">
               <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Skills by Category</h4>
               
-              {Object.keys(skillsByCategory).length > 0 ? (
+              {errorMessage && (
+                <div className={`p-4 rounded-md ${isDarkMode ? 'bg-gray-750 text-gray-300' : 'bg-gray-50 text-gray-600'}`}>
+                  No skill categories available. Try uploading a different file or repository.
+                </div>
+              )}
+              
+              {!errorMessage && Object.keys(skillsByCategory).length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {Object.entries(skillsByCategory).map(([category, categorySkills]) => (
                     <div 
