@@ -20,7 +20,7 @@ import {
   previewPdf
 } from './pdf';
 
-// Re-export all functions individually for backward compatibility
+// Export all functions individually
 export {
   generateShareId,
   shareAnalysis,

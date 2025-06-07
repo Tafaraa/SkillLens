@@ -296,7 +296,8 @@ const ResultsPage = () => {
   const handlePreviewPdf = async () => {
     try {
       setIsPreviewing(true);
-      await previewPdf(reportContentRef.current, `SkillLens_Analysis_${results?.fileName || 'Report'}`);
+      const filename = `SkillLens_Analysis_${results?.fileName || 'Report'}`;
+      await previewPdf(reportContentRef.current, filename);
     } catch (error) {
       console.error('Error previewing PDF:', error);
       alert('Failed to preview PDF. Please try again.');
