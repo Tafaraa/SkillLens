@@ -9,6 +9,7 @@ const AuthGuard = ({ children }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loginAttempts, setLoginAttempts] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
   
   const { isDarkMode = false } = useTheme();
   
@@ -106,33 +107,63 @@ const AuthGuard = ({ children }) => {
   // Login screen with security features
   return (
     <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'bg-gradient-to-b from-gray-900 to-black' : 'bg-gradient-to-b from-gray-100 to-white'} py-12 px-4 sm:px-6 lg:px-8`}>
-      <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+      <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+        <div className="mb-6">
+          <h2 className="text-center text-3xl font-extrabold text-gray-900 dark:text-white mb-2">
             SkillLens
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">
-            Private access only
+          <p className="text-center text-base text-gray-700 dark:text-gray-300 font-medium mb-2">
+            <span className="inline-block px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 rounded-full text-xs font-semibold mb-2">Private Beta</span>
+            <br />
+            <span>
+              <span className="font-semibold">SkillLens</span> is an AI-powered platform for analyzing code, visualizing developer skills, and recommending personalized learning paths. <br />
+              <span className="text-primary-600 dark:text-primary-400 font-semibold">This site is currently in development.</span>
+            </span>
+          </p>
+          <p className="text-center text-sm text-gray-600 dark:text-gray-400 mb-4">
+            To request access, please fill out the form on my website.<br />
+            <a
+              href="https://mutsvedutafara.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mt-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md font-semibold shadow transition-colors duration-200"
+            >
+              Request Access
+            </a>
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+        <form className="mt-4 space-y-6" onSubmit={handleLogin} autoComplete="off">
           <div className="rounded-md shadow-sm -space-y-px">
-            <div>
+            <div className="relative">
               <label htmlFor="password" className="sr-only">
                 Password
               </label>
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 required
-                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-700 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-700 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm pr-10"
                 placeholder="Access password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loginAttempts >= 5}
+                aria-label="Access password"
               />
+              <button
+                type="button"
+                tabIndex={-1}
+                className="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.657.403-3.22 1.125-4.575m2.13-2.13A9.956 9.956 0 0112 3c5.523 0 10 4.477 10 10 0 1.657-.403 3.22-1.125 4.575m-2.13 2.13A9.956 9.956 0 0112 21c-2.21 0-4.26-.72-5.925-1.95M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c1.657 0 3.22.403 4.575 1.125m2.13 2.13A9.956 9.956 0 0121.542 12c-1.274 4.057-5.065 7-9.542 7-1.657 0-3.22-.403-4.575-1.125m-2.13-2.13A9.956 9.956 0 012.458 12z" /></svg>
+                )}
+              </button>
             </div>
           </div>
 
@@ -143,13 +174,16 @@ const AuthGuard = ({ children }) => {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:bg-gray-400 disabled:cursor-not-allowed shadow"
               disabled={loginAttempts >= 5}
             >
               Access site
             </button>
           </div>
         </form>
+        <div className="mt-6 text-xs text-gray-500 dark:text-gray-400 text-center">
+          <span className="font-semibold">Security Notice:</span> Your access is protected. Please do not share your password. All access attempts are monitored for security.
+        </div>
       </div>
     </div>
   );

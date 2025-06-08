@@ -36,8 +36,8 @@ This guide provides detailed instructions for deploying SkillLens on Render (bac
    Add the following environment variables in Render:
    ```
    DATABASE_URL=your_database_url
-   SECRET_KEY=your_secret_key
-   CORS_ORIGINS=https://your-frontend-domain.vercel.app
+   SECRET_KEY=Qw8k2n3lKJH8sdf9sdf8sdf9sdf8sdf9sdf8sdf9sdf8sdf9
+   CORS_ORIGINS=https://skill-lens.vercel.app/
    PYTHON_VERSION=3.10.0
    ```
 
@@ -48,7 +48,7 @@ This guide provides detailed instructions for deploying SkillLens on Render (bac
      - Install dependencies
      - Build your application
      - Start the server
-   - Note down the generated domain (e.g., `https://your-app.onrender.com`)
+   - Note down the generated domain (e.g., `https://skilllens.onrender.com`)
 
 ## Deploying the Frontend on Vercel
 
@@ -70,13 +70,13 @@ This guide provides detailed instructions for deploying SkillLens on Render (bac
 3. **Environment Variables**
    - Add the following environment variables in Vercel:
      ```
-     VITE_API_URL=https://your-render-backend-url
+     VITE_API_URL=https://skilllens.onrender.com
      ```
 
 4. **Deploy Frontend**
    - Click "Deploy"
    - Vercel will build and deploy your frontend
-   - Once complete, you'll get a deployment URL (e.g., `https://your-app.vercel.app`)
+   - Once complete, you'll get a deployment URL (e.g., `https://skill-lens.vercel.app`)
 
 ## Post-Deployment Steps
 
@@ -168,4 +168,7 @@ For additional help or custom configurations, refer to the official documentatio
 - `server/Procfile` - Render config
 
 ---
-For custom domains, SSL, or advanced routing, refer to Vercel and Render docs. 
+For custom domains, SSL, or advanced routing, refer to Vercel and Render docs.
+
+- **Frontend URL:** https://skill-lens.vercel.app/
+- **Backend URL:** https://skilllens.onrender.com 

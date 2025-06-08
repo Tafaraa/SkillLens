@@ -20,16 +20,20 @@ app = FastAPI(
 )
 
 # Configure CORS
-origins = [
-    "http://localhost:3000",
-    "http://localhost:5173",  # Vite default port
-    "http://localhost:5174",  # Additional Vite port
-    "http://localhost:5176",  # Additional Vite port
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:5174",
-    "http://127.0.0.1:5176",
-    # Add your production domain here when deployed
-]
+origins = os.getenv("CORS_ORIGINS")
+if origins:
+    origins = [origin.strip() for origin in origins.split(",") if origin.strip()]
+else:
+    origins = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:5176",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:5174",
+        "http://127.0.0.1:5176",
+        "https://skill-lens.vercel.app/"
+    ]
 
 app.add_middleware(
     CORSMiddleware,
