@@ -13,6 +13,6 @@ email-validator==2.1.1
 aiofiles==23.2.1
 gitpython==3.1.40
 beautifulsoup4==4.12.2
-guesslang==2.2.1
 radon==6.0.1
 pygount==1.6.1
+pygments==2.17.2

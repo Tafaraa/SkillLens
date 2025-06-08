@@ -2,6 +2,8 @@ import os
 import re
 from pathlib import Path
 from typing import Tuple, List, Dict, Set
+from pygments.lexers import guess_lexer
+from pygments.util import ClassNotFound
 
 def analyze_code(file_path: str) -> Tuple[str, List[str]]:
     """
@@ -23,6 +25,14 @@ def analyze_code(file_path: str) -> Tuple[str, List[str]]:
     # Read file content
     with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
         content = f.read()
+    
+    # Fallback to Pygments if language is unknown
+    if language == 'Unknown':
+        try:
+            lexer = guess_lexer(content)
+            language = lexer.name
+        except ClassNotFound:
+            language = 'Unknown'
     
     # Detect libraries based on language
     libraries = detect_libraries(content, language)
