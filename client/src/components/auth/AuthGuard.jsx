@@ -157,7 +157,7 @@ const AuthGuard = ({ children }) => {
           <p className="text-center text-sm text-gray-600 dark:text-gray-400 mb-4">
             To gain access, please contact the owner through the personal website below.<br />
             <a
-              href="https://mutsvedutafara.com/"
+              href="https://mutsvedutafara.com/#contact"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block mt-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md font-semibold shadow transition-colors duration-200"
