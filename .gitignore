@@ -115,4 +115,8 @@ backup/
 *.temp
 .cache/
 
+# Project specific
+/Skill/
+/Skill/**/*
+
 
