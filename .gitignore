@@ -75,4 +75,44 @@ Desktop.ini
 # Generated data
 /data/temp/
 
+# Documentation and Deployment
+README_DEPLOY.md
+DEPLOYMENT.md
+deployment-guide.md
+docs/deployment/
+docs/security/
+docs/internal/
+
+# Security and Configuration
+*.pem
+*.key
+*.cert
+config.local.js
+config.prod.js
+secrets.json
+credentials.json
+
+# Database
+*.sqlite
+*.db
+*.sql
+migrations/
+
+# Backup files
+*.bak
+*.backup
+*_backup
+backup/
+
+# IDE specific
+*.sublime-workspace
+*.sublime-project
+.vs/
+*.code-workspace
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
 
