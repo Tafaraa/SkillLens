@@ -9,7 +9,7 @@ from pathlib import Path
 
 from app.models.skill_models import AnalysisRequest, RepoAnalysisRequest, AnalysisResponse, SkillScore
 from app.services.file_service import validate_file, save_upload, process_file_upload
-from app.services.parser import parse_github_repo
+from app.services.parser import CodeParser
 from app.services.cache_service import CacheService
 from app.core.skills import SkillExtractor
 from app.core.resources import ResourceManager
@@ -19,10 +19,11 @@ from app.utils.helpers import clone_github_repo, get_file_paths, get_timestamp
 router = APIRouter(prefix="/analyze", tags=["analyze"])
 api_router = APIRouter(prefix="/api", tags=["api"])
 
-# Initialize skill extractor, resource manager, and cache service
+# Initialize services
 skill_extractor = SkillExtractor()
 resource_manager = ResourceManager()
 cache_service = CacheService(cache_expiry=3600)  # 1 hour cache expiry
+code_parser = CodeParser()  # Initialize CodeParser instance
 
 @router.post("/file", response_model=AnalysisResponse)
 async def analyze_file(file: UploadFile = File(...)):
