@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, Request
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, Request, Body
 from typing import Dict, List, Any, Optional
 import os
 import tempfile
@@ -227,3 +227,12 @@ async def upload_summary(file: UploadFile = File(...)):
     finally:
         # Reset file pointer
         await file.seek(0)
+
+@router.post("/check-password")
+async def check_password(data: dict = Body(...)):
+    password = data.get("password")
+    secret = os.environ.get("SECRET_KEY")
+    if password == secret:
+        return {"success": True}
+    else:
+        raise HTTPException(status_code=401, detail="Invalid password")

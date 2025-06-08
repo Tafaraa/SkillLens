@@ -222,6 +222,11 @@ const apiService = {
         'Content-Type': undefined, // Explicitly remove Content-Type for FormData
       }
     })
+  },
+
+  // Check password for access
+  checkPassword: (password) => {
+    return apiClient.post('/api/check-password', { password })
   }
 }
 
