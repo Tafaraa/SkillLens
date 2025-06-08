@@ -3,6 +3,7 @@ import { useTheme } from '../../hooks/useTheme';
 import { jwtDecode } from 'jwt-decode';
 import ThemeToggle from '../ThemeToggle';
 import { motion } from 'framer-motion';
+import apiService from '../../services/api';
 
 // Authentication guard for production environment
 const AuthGuard = ({ children }) => {
@@ -73,7 +74,7 @@ const AuthGuard = ({ children }) => {
   }
   
   // Handle login with rate limiting
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     
     // Rate limiting to prevent brute force attacks
@@ -86,23 +87,30 @@ const AuthGuard = ({ children }) => {
       return;
     }
     
-    if (password === import.meta.env.VITE_ACCESS_PASSWORD) {
-      // Create a JWT-like token with expiration
-      const now = Date.now();
-      const expiresIn = 7 * 24 * 60 * 60 * 1000; // 7 days
-      const token = btoa(JSON.stringify({
-        iat: now,
-        exp: now + expiresIn,
-        token: import.meta.env.VITE_ACCESS_TOKEN
-      }));
-      
-      localStorage.setItem('site-auth-token', token);
-      setIsAuthenticated(true);
-      setError('');
-      setLoginAttempts(0);
-    } else {
+    try {
+      const response = await apiService.checkPassword(password);
+      if (response.success) {
+        // Create a JWT-like token with expiration
+        const now = Date.now();
+        const expiresIn = 7 * 24 * 60 * 60 * 1000; // 7 days
+        const token = btoa(JSON.stringify({
+          iat: now,
+          exp: now + expiresIn,
+          token: import.meta.env.VITE_ACCESS_TOKEN
+        }));
+        
+        localStorage.setItem('site-auth-token', token);
+        setIsAuthenticated(true);
+        setError('');
+        setLoginAttempts(0);
+      } else {
+        setLoginAttempts(prev => prev + 1);
+        setError(`Invalid password. ${5 - loginAttempts} attempts remaining.`);
+      }
+    } catch (err) {
+      console.error('Login error:', err);
       setLoginAttempts(prev => prev + 1);
-      setError(`Invalid password. ${5 - loginAttempts} attempts remaining.`);
+      setError(err.response?.data?.detail || 'An error occurred during login. Please try again.');
     }
   };
   
@@ -178,7 +186,7 @@ const AuthGuard = ({ children }) => {
                 type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 required
-                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-700 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm pr-10"
+                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-700 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm pr-12"
                 placeholder="Access password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -188,7 +196,7 @@ const AuthGuard = ({ children }) => {
               <button
                 type="button"
                 tabIndex={0}
-                className="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none"
+                className="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none z-10"
                 onClick={() => setShowPassword((v) => !v)}
                 aria-label={showPassword ? "Hide password" : "Show password"}
                 style={{ cursor: 'pointer' }}
