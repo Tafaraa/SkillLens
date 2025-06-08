@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LabelList } from 'recharts'
 import { prepareBarChartData } from '../utils/chartUtils'
-import { useTheme } from '../hooks/useTheme.jsx'
+import { useTheme } from '../hooks/useTheme'
 import { motion } from 'framer-motion'
 import { QuestionMarkCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 
@@ -193,3 +193,5 @@ const SkillBarChart = ({ skills }) => {
 }
 
 export default SkillBarChart
+
+

@@ -9,14 +9,15 @@ import AnalyzeLoading from '../components/analyze/AnalyzeLoading'
 import { saveAnalysisResults } from '../utils/storageUtils'
 
 const AnalyzePage = () => {
-  const { isDarkMode } = useTheme()
+  const { theme } = useTheme()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const navigate = useNavigate()
 
-  const handleAnalysisComplete = (results) => {
+  const handleAnalysisComplete = (results, originalFile = null) => {
     // Store results using our storage utility
-    saveAnalysisResults(results)
+    // Also pass the original file for data science features
+    saveAnalysisResults(results, originalFile)
     
     // Navigate to results page
     navigate('/results')
@@ -27,9 +28,8 @@ const AnalyzePage = () => {
   }
 
   return (
-    <>
-      {/* Main Content */}
-      <div className="bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-gray-800 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <main className="overflow-hidden">
         {/* Hero Section */}
         <AnalyzeHero />
         
@@ -49,11 +49,10 @@ const AnalyzePage = () => {
         
         {/* Recent Analyses Section */}
         <RecentAnalysesSection />
-
-        {/* Loading Overlay */}
-        {isLoading && <AnalyzeLoading message="Analyzing code..." />}
-      </div>
-    </>
+      </main>
+      {/* Loading Overlay */}
+      {isLoading && <AnalyzeLoading message="Analyzing code..." />}
+    </div>
   )
 }
 

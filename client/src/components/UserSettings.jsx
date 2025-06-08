@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import useUserPreferences from '../hooks/useUserPreferences'
 import ThemeToggle from './ThemeToggle'
-import { useTheme } from '../hooks/useTheme.jsx'
+import { useTheme } from '../hooks/useTheme'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const UserSettings = () => {
@@ -167,3 +167,5 @@ const UserSettings = () => {
 }
 
 export default UserSettings
+
+

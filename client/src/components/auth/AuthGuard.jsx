@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useTheme } from '../../hooks/useTheme.jsx';
+import { useTheme } from '../../hooks/useTheme';
 import { jwtDecode } from 'jwt-decode';
 
 // Authentication guard for production environment
@@ -9,7 +9,8 @@ const AuthGuard = ({ children }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loginAttempts, setLoginAttempts] = useState(0);
-  const { isDarkMode } = useTheme();
+  
+  const { isDarkMode = false } = useTheme();
   
   // Check if we're in development mode
   const isDevelopment = import.meta.env.MODE === 'development';
@@ -155,3 +156,4 @@ const AuthGuard = ({ children }) => {
 };
 
 export default AuthGuard;
+

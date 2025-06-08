@@ -1,10 +1,23 @@
 import React from 'react'
 import { THEMES } from '../utils/themeUtils'
-import { useTheme } from '../hooks/useTheme.jsx'
+import { useTheme } from '../hooks/useTheme'
 import { motion } from 'framer-motion'
 
 const ThemeToggle = () => {
-  const { theme, updateTheme, isDarkMode } = useTheme()
+  // Add error handling for the useTheme hook
+  let theme = 'system';
+  let updateTheme = () => {};
+  let isDarkMode = false;
+  
+  try {
+    const themeContext = useTheme();
+    // Use optional chaining and provide fallbacks
+    theme = themeContext?.theme || 'system';
+    updateTheme = themeContext?.updateTheme || (() => {});
+    isDarkMode = themeContext?.isDarkMode || false;
+  } catch (error) {
+    console.error('Error accessing theme context:', error);
+  }
 
   const handleThemeChange = (newTheme) => {
     updateTheme(newTheme)
@@ -42,3 +55,5 @@ const ThemeToggle = () => {
 }
 
 export default ThemeToggle
+
+

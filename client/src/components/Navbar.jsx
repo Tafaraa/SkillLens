@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import UserSettings from './UserSettings'
-import { useTheme } from '../hooks/useTheme.jsx'
+import { useTheme } from '../hooks/useTheme'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { isDarkMode } = useTheme()
   const [scrolled, setScrolled] = useState(false)
+  
+  // Add error handling for the useTheme hook
+  let isDarkMode = false;
+  try {
+    const themeContext = useTheme();
+    isDarkMode = themeContext?.isDarkMode || false;
+  } catch (error) {
+    console.error('Error accessing theme context:', error);
+  }
 
   // Detect scroll position for navbar styling
   useEffect(() => {
@@ -212,3 +220,5 @@ const Navbar = () => {
 }
 
 export default Navbar
+
+

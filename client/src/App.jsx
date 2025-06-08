@@ -11,9 +11,10 @@ import NotFoundPage from './pages/NotFoundPage'
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
 import TermsPage from './pages/TermsPage'
 import SecurityPage from './pages/SecurityPage'
-import RouteTransition from './components/RouteTransition'
-import { ThemeProvider } from './hooks/useTheme.jsx'
+import { RouteTransition } from './components/RouteTransition'
+import { ThemeProvider } from './hooks/useTheme'
 import AuthGuard from './components/auth/AuthGuard'
+import { NotificationContainer } from './components/common/Notification'
 
 function App() {
   return (
@@ -21,8 +22,8 @@ function App() {
       <AuthGuard>
         <div className="flex flex-col min-h-screen">
           <Navbar />
-          <RouteTransition />
-          <main className="flex-grow transition-opacity duration-150 ease-in-out">
+          <NotificationContainer />
+          <RouteTransition>
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/analyze" element={<AnalyzePage />} />
@@ -34,7 +35,7 @@ function App() {
               <Route path="/security" element={<SecurityPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
-          </main>
+          </RouteTransition>
           <Footer />
         </div>
       </AuthGuard>

@@ -64,38 +64,36 @@ export const applyTheme = (theme) => {
     // Force a complete removal of theme classes first
     root.classList.remove('light', 'dark')
     
-    // Apply the appropriate theme with a small delay to ensure DOM updates
-    setTimeout(() => {
-      if (theme === THEMES.SYSTEM) {
-        // Use system preference
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          root.classList.add('dark')
-          document.body.style.backgroundColor = '#111827' // gray-900
-          document.body.style.color = '#f3f4f6' // gray-100
-        } else {
-          root.classList.add('light')
-          document.body.style.backgroundColor = '#ffffff'
-          document.body.style.color = '#111827' // gray-900
-        }
+    // Apply the appropriate theme immediately
+    if (theme === THEMES.SYSTEM) {
+      // Use system preference
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        root.classList.add('dark')
+        document.body.style.backgroundColor = '#111827' // gray-900
+        document.body.style.color = '#f3f4f6' // gray-100
       } else {
-        // Use explicit preference
-        root.classList.add(theme)
-        
-        if (theme === THEMES.DARK) {
-          document.body.style.backgroundColor = '#111827' // gray-900
-          document.body.style.color = '#f3f4f6' // gray-100
-        } else {
-          document.body.style.backgroundColor = '#ffffff'
-          document.body.style.color = '#111827' // gray-900
-        }
+        root.classList.add('light')
+        document.body.style.backgroundColor = '#ffffff'
+        document.body.style.color = '#111827' // gray-900
       }
+    } else {
+      // Use explicit preference
+      root.classList.add(theme)
       
-      // Dispatch a custom event that components can listen for
-      const themeChangeEvent = new CustomEvent('themechange', { 
-        detail: { theme, isDarkMode } 
-      })
-      window.dispatchEvent(themeChangeEvent)
-    }, 0)
+      if (theme === THEMES.DARK) {
+        document.body.style.backgroundColor = '#111827' // gray-900
+        document.body.style.color = '#f3f4f6' // gray-100
+      } else {
+        document.body.style.backgroundColor = '#ffffff'
+        document.body.style.color = '#111827' // gray-900
+      }
+    }
+    
+    // Dispatch a custom event that components can listen for
+    const themeChangeEvent = new CustomEvent('themechange', { 
+      detail: { theme, isDarkMode } 
+    })
+    window.dispatchEvent(themeChangeEvent)
   } catch (error) {
     console.error('Error applying theme:', error)
   }
@@ -134,12 +132,4 @@ export const initializeTheme = () => {
   } catch (error) {
     console.error('Error setting up theme listeners:', error)
   }
-}
-
-export default {
-  THEMES,
-  getThemePreference,
-  setThemePreference,
-  applyTheme,
-  initializeTheme
 }

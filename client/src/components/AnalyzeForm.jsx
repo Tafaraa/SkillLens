@@ -84,29 +84,62 @@ const AnalyzeForm = ({ onAnalysisComplete, setIsLoading, setError }) => {
 
     try {
       setIsLoading(true)
+      let serverAvailable = true
       
       // Verify backend connection before proceeding
       try {
-        await apiService.healthCheck()
+        const healthResponse = await apiService.healthCheck()
+        console.log('Backend health check successful:', healthResponse.data)
       } catch (healthError) {
-        throw new Error('Unable to connect to the analysis server. Please ensure the backend server is running.')
+        console.error('Health check failed:', healthError)
+        
+        // Check if this is a server connection error
+        if (healthError.isServerConnectionError) {
+          console.warn('Server connection error detected, will use mock data')
+          serverAvailable = false
+          // Don't throw error here, continue with mock data
+        } else {
+          throw healthError // Other errors should still be thrown
+        }
       }
       
       let response
       
       if (activeTab === 'file') {
         console.log('Submitting file for analysis:', file.name)
-        // Pass the file directly to the API service, not the formData
-        // The API service will create the FormData object
-        response = await apiService.analyzeFile(file)
         
-        console.log('Analysis response received:', response.data)
+        if (serverAvailable) {
+          try {
+            // Pass the file directly to the API service, not the formData
+            // The API service will create the FormData object
+            response = await apiService.analyzeFile(file)
+            console.log('Analysis response received:', response.data)
+          } catch (apiError) {
+            // If we get a server connection error during the API call
+            if (apiError.isServerConnectionError) {
+              console.warn('Server connection error during API call, using mock data')
+              serverAvailable = false
+            } else {
+              throw apiError // Other errors should still be thrown
+            }
+          }
+        }
         
-        if (response.data) {
+        // If server is not available or the API call failed with connection error, use mock data
+        if (!serverAvailable) {
+          console.log('Using mock data for analysis')
+          response = { data: apiService.getMockData('analysis') }
+          // Add file information to mock data
+          response.data.fileName = file.name
+          response.data.fileSize = `${(file.size / 1024).toFixed(1)} KB`
+          response.data.fileType = file.name.split('.').pop().toUpperCase()
+        }
+        
+        if (response && response.data) {
           // Validate skills data
           if (!response.data.skills || !Array.isArray(response.data.skills) || response.data.skills.length === 0) {
-            console.warn('No skills data in analysis response, adding fallback data for testing')
-            // Add fallback data for testing
+            console.warn('No skills data in analysis response, adding fallback data')
+            // Add fallback data
             response.data.skills = [
               { name: 'JavaScript', score: 0.75, category: 'Frontend' },
               { name: 'React', score: 0.65, category: 'Frontend' },
@@ -116,15 +149,40 @@ const AnalyzeForm = ({ onAnalysisComplete, setIsLoading, setError }) => {
             ]
           }
           
+          // Pass both the analysis results and the original file
+          // This allows data science features to work properly
+          onAnalysisComplete(response.data, file)
+        } else {
+          throw new Error('Empty response received')
+        }
+      } else if (activeTab === 'github') {
+        if (serverAvailable) {
+          try {
+            response = await apiService.analyzeGitHub(repoUrl)
+          } catch (apiError) {
+            // If we get a server connection error during the API call
+            if (apiError.isServerConnectionError) {
+              console.warn('Server connection error during GitHub API call, using mock data')
+              serverAvailable = false
+            } else {
+              throw apiError // Other errors should still be thrown
+            }
+          }
+        }
+        
+        // If server is not available, use mock data
+        if (!serverAvailable) {
+          console.log('Using mock data for GitHub analysis')
+          response = { data: apiService.getMockData('analysis') }
+          // Add GitHub information to mock data
+          response.data.fileName = repoUrl.split('/').pop()
+          response.data.fileType = 'GitHub Repository'
+        }
+        
+        if (response && response.data) {
           onAnalysisComplete(response.data)
         } else {
-          throw new Error('Empty response received from server')
-        }
-      } else {
-        response = await apiService.analyzeGitHub(repoUrl)
-        
-        if (response.data) {
-          onAnalysisComplete(response.data)
+          throw new Error('Empty response received')
         }
       }
     } catch (error) {

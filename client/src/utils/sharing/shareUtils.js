@@ -2,8 +2,7 @@
  * Utilities for sharing analysis results
  */
 import { v4 as uuidv4 } from 'uuid';
-import { saveToLocalStorage, getFromLocalStorage } from '../storageUtils';
-import { STORAGE_KEYS } from '../constants';
+import { saveToLocalStorage, getFromLocalStorage, STORAGE_KEYS } from '../storageUtils';
 
 /**
  * Generate a unique ID for sharing

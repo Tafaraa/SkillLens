@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip, Legend } from 'recharts'
 import { prepareRadarChartData } from '../utils/chartUtils'
-import { useTheme } from '../hooks/useTheme.jsx'
+import { useTheme } from '../hooks/useTheme'
 import { motion } from 'framer-motion'
 import { QuestionMarkCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 
@@ -177,3 +177,5 @@ const SkillRadarChart = ({ skills }) => {
 }
 
 export default SkillRadarChart
+
+

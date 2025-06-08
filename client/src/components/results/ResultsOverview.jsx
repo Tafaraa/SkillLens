@@ -1,5 +1,5 @@
 import React from 'react'
-import { useTheme } from '../../hooks/useTheme.jsx'
+import { useTheme } from '../../hooks/useTheme'
 import { ChevronRightIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 import { motion } from 'framer-motion'
 
@@ -136,3 +136,5 @@ const ResultsOverview = ({
 }
 
 export default ResultsOverview
+
+

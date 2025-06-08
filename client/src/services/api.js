@@ -43,6 +43,8 @@ apiClient.interceptors.response.use(
     
     if (error.code === 'ERR_NETWORK') {
       errorMessage = 'Unable to connect to the server. Please check your connection and try again.'
+      // Add more specific information about server connection
+      error.isServerConnectionError = true
     } else if (error.response) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
@@ -50,6 +52,8 @@ apiClient.interceptors.response.use(
     } else if (error.request) {
       // The request was made but no response was received
       errorMessage = 'No response received from server. Please try again later.'
+      // Also mark as connection error
+      error.isServerConnectionError = true
     }
     
     // Add user-friendly message to the error object
@@ -61,6 +65,31 @@ apiClient.interceptors.response.use(
 
 // API service methods
 const apiService = {
+  // Get stored analysis results
+  getAnalysisResults: () => {
+    try {
+      // Check if we're in a browser environment
+      if (typeof window === 'undefined' || typeof localStorage === 'undefined') return null
+      
+      const item = localStorage.getItem('analysisResults')
+      if (!item) return null
+      
+      // Parse the stored results
+      const results = JSON.parse(item)
+      
+      // Validate the results
+      if (!results || typeof results !== 'object') {
+        console.error('Invalid analysis results format in local storage')
+        return null
+      }
+      
+      return results
+    } catch (error) {
+      console.error('Error getting analysis results:', error)
+      return null
+    }
+  },
+  
   // File analysis
   analyzeFile: (file) => {
     // Create a new FormData instance
@@ -85,10 +114,74 @@ const apiService = {
     return apiClient.post('/analyze/github', { repository_url: repoUrl })
   },
   
-  // Health check
-  healthCheck: () => {
+  // Health check with improved error handling
+  healthCheck: async () => {
     console.log('Performing health check to:', `${API_URL}/health`)
-    return apiClient.get('/health')
+    try {
+      const response = await apiClient.get('/health', { timeout: 5000 }) // 5 second timeout for faster feedback
+      console.log('Health check response:', response.data)
+      return response
+    } catch (error) {
+      console.error('Health check failed:', error)
+      // Add more specific error information
+      if (error.code === 'ERR_NETWORK' || error.code === 'ECONNREFUSED') {
+        error.userMessage = 'Unable to connect to the backend server. Please ensure the server is running at ' + API_URL
+        error.isServerConnectionError = true
+      }
+      throw error
+    }
+  },
+  
+  // Get mock data for offline development
+  getMockData: (type) => {
+    console.warn('Using mock data for', type)
+    
+    const mockData = {
+      analysis: {
+        id: 'mock-analysis-123',
+        fileName: 'example.js',
+        fileType: 'JavaScript',
+        fileSize: '2.4 KB',
+        timestamp: new Date().toISOString(),
+        skills: [
+          { name: 'JavaScript', score: 0.85, category: 'Frontend' },
+          { name: 'React', score: 0.75, category: 'Frontend' },
+          { name: 'CSS', score: 0.65, category: 'Frontend' },
+          { name: 'HTML', score: 0.80, category: 'Frontend' },
+          { name: 'Node.js', score: 0.60, category: 'Backend' }
+        ],
+        recommendations: [
+          { title: 'Improve code organization', description: 'Consider using more modular components' },
+          { title: 'Add more comments', description: 'Some functions lack proper documentation' },
+          { title: 'Optimize performance', description: 'Consider memoizing expensive calculations' }
+        ]
+      },
+      developerRank: {
+        rank: 'Intermediate',
+        percentile: 65,
+        strengths: ['Frontend Development', 'UI Design'],
+        areas_to_improve: ['Testing', 'Performance Optimization']
+      },
+      skillProgress: {
+        data: [
+          { name: 'Week 1', JavaScript: 0.5, React: 0.3, CSS: 0.6 },
+          { name: 'Week 2', JavaScript: 0.6, React: 0.4, CSS: 0.65 },
+          { name: 'Week 3', JavaScript: 0.7, React: 0.5, CSS: 0.7 },
+          { name: 'Week 4', JavaScript: 0.85, React: 0.75, CSS: 0.65 }
+        ]
+      },
+      uploadSummary: {
+        totalFiles: 1,
+        totalLines: 245,
+        languages: [
+          { name: 'JavaScript', percentage: 85 },
+          { name: 'CSS', percentage: 15 }
+        ],
+        complexity: 'Medium'
+      }
+    }
+    
+    return mockData[type] || null
   },
   
   // Submit user feedback
@@ -97,6 +190,37 @@ const apiService = {
       analysis_id: analysisId,
       rating,
       comment
+    })
+  },
+
+  // NEW DATA SCIENCE FEATURES
+
+  // Developer ranking analysis
+  getDeveloperRank: (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    return apiClient.post('/api/developer_rank', formData, {
+      headers: {
+        'Content-Type': undefined, // Explicitly remove Content-Type for FormData
+      }
+    })
+  },
+  
+  // Skill progress chart
+  getSkillProgressChart: () => {
+    return apiClient.post('/api/skill_progress_chart')
+  },
+  
+  // Upload analysis summary
+  getUploadSummary: (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    return apiClient.post('/api/upload_summary', formData, {
+      headers: {
+        'Content-Type': undefined, // Explicitly remove Content-Type for FormData
+      }
     })
   }
 }

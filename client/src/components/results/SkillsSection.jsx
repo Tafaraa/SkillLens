@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useTheme } from '../../hooks/useTheme.jsx'
+import { useTheme } from '../../hooks/useTheme'
 import { ChevronRightIcon, ChevronDownIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 import { motion } from 'framer-motion'
 import SkillRadarChart from '../SkillRadarChart'
@@ -202,3 +202,5 @@ const SkillsSection = ({
 }
 
 export default SkillsSection
+
+

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useTheme } from '../hooks/useTheme.jsx';
+import { useTheme } from '../hooks/useTheme';
 
 // Get API URL from environment variables or use default
 const isProduction = import.meta.env.MODE === 'production';
@@ -511,3 +511,5 @@ const RecommendationCard = ({ skill }) => {
 };
 
 export default RecommendationCard;
+
+

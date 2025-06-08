@@ -2,7 +2,7 @@
  * Utility functions for working with browser storage (localStorage and sessionStorage)
  */
 
-const STORAGE_KEYS = {
+export const STORAGE_KEYS = {
   ANALYSIS_RESULTS: 'analysisResults',
   RECENT_ANALYSES: 'recentAnalyses',
   USER_PREFERENCES: 'userPreferences'
@@ -119,10 +119,11 @@ export const removeFromSessionStorage = (key) => {
 // This function is implemented as saveAnalysisResultsToSessionStorage below
 
 /**
- * Save analysis results to sessionStorage
+ * Save analysis results to localStorage
  * @param {Object} results - Analysis results
+ * @param {File} [originalFile] - Original file for data science features
  */
-export const saveAnalysisResults = (results) => {
+export const saveAnalysisResults = (results, originalFile = null) => {
   try {
     // Validate results before saving
     if (!results) {
@@ -137,10 +138,27 @@ export const saveAnalysisResults = (results) => {
     }
     
     // Log the data being saved
-    console.log('Saving analysis results to session storage:', results)
+    console.log('Saving analysis results to local storage:', results)
     
-    // Save to session storage
-    saveToSessionStorage(STORAGE_KEYS.ANALYSIS_RESULTS, results)
+    // Save to localStorage instead of sessionStorage for persistence
+    saveToLocalStorage(STORAGE_KEYS.ANALYSIS_RESULTS, results)
+    
+    // Save the original file for data science features if provided
+    if (originalFile && originalFile instanceof File) {
+      // Convert file to base64 for storage
+      const reader = new FileReader()
+      reader.onload = function(e) {
+        const base64data = e.target.result.split(',')[1] // Remove data URL prefix
+        const fileData = {
+          name: originalFile.name,
+          type: originalFile.type,
+          data: base64data
+        }
+        saveToLocalStorage('originalFile', JSON.stringify(fileData))
+        console.log('Original file saved for data science features')
+      }
+      reader.readAsDataURL(originalFile)
+    }
     
     // Also save to recent analyses in localStorage (keep last 5)
     const recentAnalyses = getFromLocalStorage(STORAGE_KEYS.RECENT_ANALYSES) || []
@@ -164,22 +182,22 @@ export const saveAnalysisResults = (results) => {
 }
 
 /**
- * Get analysis results from sessionStorage
+ * Get analysis results from localStorage
  * @returns {Object|null} Analysis results or null if not found
  */
 export const getAnalysisResults = () => {
   try {
-    const results = getFromSessionStorage(STORAGE_KEYS.ANALYSIS_RESULTS)
+    const results = getFromLocalStorage(STORAGE_KEYS.ANALYSIS_RESULTS)
     if (!results) {
-      console.warn('No analysis results found in session storage')
+      console.warn('No analysis results found in local storage')
       return null
     }
     
-    console.log('Retrieved analysis results from session storage:', results)
+    console.log('Retrieved analysis results from local storage:', results)
     
     // Validate the retrieved data
     if (!results || typeof results !== 'object') {
-      console.error('Invalid analysis results format in session storage')
+      console.error('Invalid analysis results format in local storage')
       return null
     }
     
@@ -191,7 +209,7 @@ export const getAnalysisResults = () => {
     
     return results
   } catch (error) {
-    console.error('Error getting analysis results from session storage:', error)
+    console.error('Error getting analysis results from local storage:', error)
     return null
   }
 }
@@ -202,17 +220,4 @@ export const getAnalysisResults = () => {
  */
 export const getRecentAnalyses = () => {
   return getFromLocalStorage(STORAGE_KEYS.RECENT_ANALYSES) || []
-}
-
-export default {
-  STORAGE_KEYS,
-  saveToLocalStorage,
-  getFromLocalStorage,
-  removeFromLocalStorage,
-  saveToSessionStorage,
-  getFromSessionStorage,
-  removeFromSessionStorage,
-  saveAnalysisResults,
-  getAnalysisResults,
-  getRecentAnalyses
 }

@@ -1,5 +1,5 @@
 import React from 'react'
-import { useTheme } from '../../hooks/useTheme.jsx'
+import { useTheme } from '../../hooks/useTheme'
 import { ShareIcon, DocumentArrowDownIcon, EyeIcon, ArrowLeftIcon } from '@heroicons/react/24/outline'
 import { useNavigate } from 'react-router-dom'
 
@@ -103,3 +103,5 @@ const ResultsHeader = ({
 }
 
 export default ResultsHeader
+
+

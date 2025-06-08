@@ -1,8 +1,12 @@
 import { useState, useEffect, createContext, useContext, useCallback } from 'react'
 import { THEMES, getThemePreference, setThemePreference, applyTheme } from '../utils/themeUtils'
 
-// Create a context for theme state
-const ThemeContext = createContext()
+// Create a context for theme state with default values to prevent null errors
+const ThemeContext = createContext({
+  theme: 'system',
+  updateTheme: () => {},
+  isDarkMode: false
+})
 
 // Theme provider component
 export const ThemeProvider = ({ children }) => {
@@ -75,5 +79,3 @@ export const useTheme = () => {
   }
   return context
 }
-
-export default useTheme

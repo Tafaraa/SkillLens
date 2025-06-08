@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useTheme } from '../../hooks/useTheme.jsx'
+import { useTheme } from '../../hooks/useTheme'
 import { motion } from 'framer-motion'
 
 const ShareModal = ({ 
@@ -138,3 +138,5 @@ const ShareModal = ({
 }
 
 export default ShareModal
+
+
