@@ -229,8 +229,8 @@ async def upload_summary(file: UploadFile = File(...)):
         await file.seek(0)
 
 @router.post("/check-password")
-async def check_password(data: dict = Body(...)):
-    password = data.get("password")
+async def check_password(data: Optional[dict] = Body(None)):
+    password = data.get("password") if data else None
     secret = os.environ.get("SECRET_KEY")
     if password == secret:
         return {"success": True}
