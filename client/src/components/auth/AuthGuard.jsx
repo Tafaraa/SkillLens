@@ -4,6 +4,7 @@ import { jwtDecode } from 'jwt-decode';
 import ThemeToggle from '../ThemeToggle';
 import { motion } from 'framer-motion';
 import apiService from '../../services/api';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 // Authentication guard for production environment
 const AuthGuard = ({ children }) => {
@@ -176,7 +177,7 @@ const AuthGuard = ({ children }) => {
         </div>
         <form className="mt-4 space-y-6" onSubmit={handleLogin} autoComplete="off">
           <div className="rounded-md shadow-sm -space-y-px">
-            <div className="relative">
+            <div className="relative flex items-center">
               <label htmlFor="password" className="sr-only">
                 Password
               </label>
@@ -186,7 +187,7 @@ const AuthGuard = ({ children }) => {
                 type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 required
-                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-700 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm pr-24"
+                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-700 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm pr-14 overflow-hidden text-ellipsis whitespace-nowrap"
                 placeholder="Access password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -196,15 +197,21 @@ const AuthGuard = ({ children }) => {
               <button
                 type="button"
                 tabIndex={0}
-                className="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none z-10"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 hover:text-gray-900 dark:hover:text-gray-100 focus:outline-none"
                 onClick={() => setShowPassword((v) => !v)}
                 aria-label={showPassword ? "Hide password" : "Show password"}
                 style={{ cursor: 'pointer' }}
               >
                 {showPassword ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.657.403-3.22 1.125-4.575m2.13-2.13A9.956 9.956 0 0112 3c5.523 0 10 4.477 10 10 0 1.657-.403 3.22-1.125 4.575m-2.13 2.13A9.956 9.956 0 0112 21c-2.21 0-4.26-.72-5.925-1.95M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                  // Proper eye-slash icon from Heroicons
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.657.403-3.22 1.125-4.575m2.13-2.13A9.956 9.956 0 0112 3c5.523 0 10 4.477 10 10 0 1.657-.403 3.22-1.125 4.575m-2.13 2.13A9.956 9.956 0 0112 21c-2.21 0-4.26-.72-5.925-1.95M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
                 ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c1.657 0 3.22.403 4.575 1.125m2.13 2.13A9.956 9.956 0 0121.542 12c-1.274 4.057-5.065 7-9.542 7-1.657 0-3.22-.403-4.575-1.125m-2.13-2.13A9.956 9.956 0 012.458 12z" /></svg>
+                  // Proper eye icon from Heroicons
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c1.657 0 3.22.403 4.575 1.125m2.13 2.13A9.956 9.956 0 0121.542 12c-1.274 4.057-5.065 7-9.542 7-1.657 0-3.22-.403-4.575-1.125m-2.13-2.13A9.956 9.956 0 012.458 12z" />
+                  </svg>
                 )}
               </button>
             </div>
