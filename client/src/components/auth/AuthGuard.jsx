@@ -4,7 +4,8 @@ import { jwtDecode } from 'jwt-decode';
 import ThemeToggle from '../ThemeToggle';
 import { motion } from 'framer-motion';
 import apiService from '../../services/api';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
+// If you've installed react-icons, you can uncomment these lines and replace the SVG code below
+// import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
 
 // Authentication guard for production environment
 const AuthGuard = ({ children }) => {
@@ -97,7 +98,7 @@ const AuthGuard = ({ children }) => {
         const token = btoa(JSON.stringify({
           iat: now,
           exp: now + expiresIn,
-          token: import.meta.env.VITE_ACCESS_TOKEN
+          token: import.meta.env.VITE_ACCESS_TOKEN // Use VITE_ACCESS_TOKEN from env
         }));
         
         localStorage.setItem('site-auth-token', token);
@@ -240,4 +241,3 @@ const AuthGuard = ({ children }) => {
 };
 
 export default AuthGuard;
-
